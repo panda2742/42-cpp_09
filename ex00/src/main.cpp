@@ -2,10 +2,14 @@
 
 int	main(int argc, char **argv)
 {
-	BitcoinExchange	btc;
-
 	try
 	{
+		if (argc != 2)
+			throw BitcoinExchange::ExchangeException(
+				"Invalid format. Expected: ./btc <*.csv>"
+			);
+		BitcoinExchange	btc(argv[1]);
+
 		btc.ParseDatabase();
 		btc.ReadInput();
 	}
@@ -13,7 +17,5 @@ int	main(int argc, char **argv)
 	{
 		std::cout << e.what() << std::endl;
 	}
-	(void)argc;
-	(void)argv;
 	return 0;
 }

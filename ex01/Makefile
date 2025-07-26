@@ -6,16 +6,16 @@
 #    By: ehosta <ehosta@student.42lyon.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/19 15:02:31 by ehosta            #+#    #+#              #
-#    Updated: 2025/07/26 06:42:27 by ehosta           ###   ########.fr        #
+#    Updated: 2025/07/26 06:32:58 by ehosta           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-override NAME	:=	btc
+override NAME	:=	RPN
 
 override SOURCE_DIR		:=	src/
 override INCLUDE_DIR	:=	include/
-INCLUDES				:=	BitcoinExchange
-SOURCES					:=	BitcoinExchange main
+INCLUDES				:=	RPN
+SOURCES					:=	main RPN
 override SOURCE			:=	$(addprefix $(SOURCE_DIR), $(addsuffix .cpp, $(SOURCES)))
 override INCLUDE		:=	$(addprefix $(INCLUDE_DIR), $(addsuffix .hpp, $(INCLUDES)))
 
@@ -63,13 +63,13 @@ run:
 	@clear
 	@$(MAKE) bonus
 	@clear
-	@./$(NAME) input.csv
+	@./$(NAME)
 
 .PHONY: vg
 vg:
 	@clear
 	@$(MAKE) bonus
 	@clear
-	$(VG) $(VGFLAGS) ./$(NAME) input.csv
+	$(VG) $(VGFLAGS) ./$(NAME)
 
 -include $(DEPS)
