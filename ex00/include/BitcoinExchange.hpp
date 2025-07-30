@@ -5,6 +5,8 @@
 # include <iostream>
 # include <fstream>
 # include <iomanip>
+# include <inttypes.h>
+# include <cstdlib>
 
 # define C_RED "\e[38;2;240;10;30m"
 # define C_GREEN "\e[38;2;10;240;30m"

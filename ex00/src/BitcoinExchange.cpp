@@ -296,7 +296,7 @@ const throw(ExchangeException)
 void	BitcoinExchange::ParseDatabase(void) throw(ExchangeException)
 {
 	std::cout << C_RESET C_CLEAR C_HOME << std::endl;
-	_db.open(_dbFilename);
+	_db.open(_dbFilename.c_str());
 
 	if (!_db.is_open())
 		throw ExchangeException("The database file could not be opened.");
@@ -330,7 +330,7 @@ void	BitcoinExchange::ParseDatabase(void) throw(ExchangeException)
 void	BitcoinExchange::ReadInput(void) throw(ExchangeException)
 {
 	std::cout << C_RESET C_CLEAR C_HOME << std::endl;
-	_input.open(_inputFilename);
+	_input.open(_inputFilename.c_str());
 
 	if (!_input.is_open())
 		throw ExchangeException("The input file could not be opened.");
