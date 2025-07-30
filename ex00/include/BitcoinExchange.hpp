@@ -16,10 +16,10 @@
 # define C_CLEAR "\e[2J"
 # define C_HOME "\e[H"
 
-typedef std::map<std::string, double>	ExchangeMap;
-typedef std::pair<std::string, double>	ExchangePair;
-typedef ExchangeMap::const_iterator		const_exchange_iterator;
-typedef ExchangeMap::iterator			exchange_iterator;
+typedef std::map< std::string, double >		ExchangeMap;
+typedef std::pair< std::string, double >	ExchangePair;
+typedef ExchangeMap::const_iterator			const_exchange_iterator;
+typedef ExchangeMap::iterator				exchange_iterator;
 
 /**
  * Represent the BitcoinExchange class.
@@ -99,11 +99,15 @@ public:
 	 * Read the database file and parse its content to set the content into the
 	 * map. Returns if the reading has been successfull or not. Throws an error
 	 * if something is wrong.
+	 * 
+	 * @throws ExchangeException if something is wrong.
 	 */
 	void	ParseDatabase(void) throw(ExchangeException);
 	/**
 	 * Read the input line per line and return the correct value for the 
 	 * associated rate. Does not throw anything.
+	 * 
+	 * @throws ExchangeException if something is wrong.
 	 */
 	void	ReadInput(void) throw(ExchangeException);
 private:
@@ -117,6 +121,7 @@ private:
 	 * 
 	 * @param dateLiteral The date to test.
 	 * @returns The result of the test.
+	 * @throws ExchangeException if something is wrong.
 	 */
 	Date_t	_IsValidDateFormat(const std::string & dateLiteral) const 
 			throw(ExchangeException);
@@ -124,6 +129,7 @@ private:
 	 * Loads a database line on the map. Throws an error if something is wrong.
 	 * 
 	 * @param line The line string literal to check.
+	 * @throws ExchangeException if something is wrong.
 	 */
 	void	_SaveLine(const std::string & line) throw(ExchangeException);
 	/**
@@ -131,6 +137,7 @@ private:
 	 * calculated value.
 	 * 
 	 * @param line The line string literal to check.
+	 * @throws ExchangeException if something is wrong.
 	 */
 	void	_UnderstandLine(const std::string & line) throw(ExchangeException);
 	/**
@@ -139,6 +146,7 @@ private:
 	 * 
 	 * @param date The date to look for.
 	 * @returns A pair from the map.
+	 * @throws ExchangeException if something is wrong.
 	 */
 	ExchangePair	_GetRateForDate(Date_t date) const throw(ExchangeException);
 };
