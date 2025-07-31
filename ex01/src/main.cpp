@@ -7,7 +7,7 @@ int	main(int argc, char **argv)
 	{
 		if (argc != 2)
 			throw RPN::RPNException(
-				"Invalid format. Expected: ./rpn <expr>"
+				"Invalid format. Expected: ./RPN <expr>"
 			);
 		RPN	rpn(argv[1]);
 
