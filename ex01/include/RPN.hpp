@@ -4,7 +4,6 @@
 # include <string>
 # include <stack>
 # include <list>
-# include <inttypes.h>
 
 # define C_RED "\e[38;2;240;10;30m"
 # define C_GREEN "\e[38;2;10;240;30m"
@@ -14,7 +13,8 @@
 # define C_CLEAR "\e[2J"
 # define C_HOME "\e[H"
 
-typedef std::stack< float, std::list< float > >	RPNStack;
+typedef std::list<float>			RPNList;
+typedef std::stack<float, RPNList>	RPNStack;
 
 /**
  * Represent the RPN class.
@@ -50,9 +50,8 @@ public:
 	 * Throws an error if something is wrong with the expression.
 	 * 
 	 * @param expr The expression to evaluate.
-	 * @throws RPNException if something is wrong.
 	 */
-	RPN(const std::string & expr) throw(RPNException);
+	RPN(const std::string & expr) throw();
 	/**
 	 * The copy constructor. Takes another instance of RPN as parameter and
 	 * creates a copy of it.
@@ -76,9 +75,14 @@ public:
 	 * @throws RPNExpression if needed.
 	 */
 	void	Operate(void) throw(RPNException);
+	/**
+	 * Display the current stack.
+	 */
+	void	Display(void) const throw();
 private:
-	const std::string	_expr;
-	RPNStack			_stack;
+	std::string	_expr;
+	RPNStack	_stack;
+	RPNList		_debug_list;
 };
 
 #endif /* RPN_HPP */

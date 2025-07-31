@@ -63,13 +63,23 @@ run:
 	@clear
 	@$(MAKE) bonus
 	@clear
-	@./$(NAME)
+	./$(NAME) "8 9 * 9 - 9 - 9 - 4 - 1 +"
+	./$(NAME) "7 7 * 7 -"
+	./$(NAME) "1 2 * 2 / 2 * 2 4 - +"
+	./$(NAME) "1 * 2 / 2 * 2 4 - +"
+	./$(NAME) "* 2 / 2 * 2 4 - +"
+	./$(NAME) "(1 + 1)"
 
 .PHONY: vg
 vg:
 	@clear
 	@$(MAKE) bonus
 	@clear
-	$(VG) $(VGFLAGS) ./$(NAME)
+	$(VG) $(VGFLAGS) ./$(NAME) "8 9 * 9 - 9 - 9 - 4 - 1 +"
+	$(VG) $(VGFLAGS) ./$(NAME) "7 7 * 7 -"
+	$(VG) $(VGFLAGS) ./$(NAME) "1 2 * 2 / 2 * 2 4 - +"
+	$(VG) $(VGFLAGS) ./$(NAME) "1 * 2 / 2 * 2 4 - +"
+	$(VG) $(VGFLAGS) ./$(NAME) "* 2 / 2 * 2 4 - +"
+	$(VG) $(VGFLAGS) ./$(NAME) "(1 + 1)"
 
 -include $(DEPS)

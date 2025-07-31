@@ -63,7 +63,7 @@ run:
 	@clear
 	@$(MAKE) bonus
 	@clear
-	@./$(NAME) input.csv
+	./$(NAME) input.csv
 
 .PHONY: vg
 vg:
