@@ -8,11 +8,12 @@
 #include <ctime>
 
 template <class T>
-PmergeMe<T>::PmergeMe(void) throw()
+PmergeMe<T>::PmergeMe(void) throw(): _seq_size(0)
 {}
 
 template <class T>
 PmergeMe<T>::PmergeMe(const char **seq, size_t seq_size) throw(PMMException)
+	: _seq_size(0)
 {
 	typedef is_allowed_container<T>	_check;
 	(void)sizeof(_check);
@@ -22,12 +23,13 @@ PmergeMe<T>::PmergeMe(const char **seq, size_t seq_size) throw(PMMException)
 
 template <class T>
 template <class Cont>
-PmergeMe<T>::PmergeMe(const PmergeMe<Cont> & other) throw()
+PmergeMe<T>::PmergeMe(const PmergeMe<Cont> & other) throw(): _seq_size(0)
 {
 	typedef is_allowed_container<Cont>	_check;
 	(void)sizeof(_check());
 
 	this->_data.assign(other._data.begin(), other._data.end());
+	this->_seq_size = other._seq_size;
 }
 
 template <class T>
@@ -75,6 +77,8 @@ double	PmergeMe<T>::Fill(const char **seq, size_t seq_size) throw(PMMException)
 		_data.push_back(value);
 		i++;
 	}
+
+	_seq_size = seq_size;
 
 	std::clock_t	end = std::clock();
 
@@ -134,4 +138,27 @@ void	PmergeMe<T>::_SortImpl(Container & o, std::bidirectional_iterator_tag)
 throw(PMMException)
 {
 	(void)o;
+}
+
+template <class T>
+void	PmergeMe<T>::_PairElements(uint64_t *isolated, bool *is_odd)
+throw(PMMException)
+{
+	if (_seq_size % 2)
+	{
+		*isolated = _data.back();
+		*is_odd = true;
+		_data.pop_back();
+	}
+
+	typename T::const_iterator	it = _data.begin();
+	typename T::const_iterator	end = _data.end();
+
+	for (; it != end; it += 2)
+	{
+		if (*it > *(it + 1))
+			pairs.push_back(std::make_pair(*(it + 1), *it));
+		else
+			pairs.push_back(std::make_pair(*it, *(it + 1)));
+	}
 }

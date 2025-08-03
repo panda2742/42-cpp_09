@@ -14,9 +14,10 @@
 #define GREY "\e[38;2;100;100;100m"
 #define RESET "\e[0m"
 
-typedef std::deque<uint64_t>	PMMDeque;
-typedef std::vector<uint64_t>	PMMVector;
-typedef std::list<uint64_t>		PMMList;
+typedef std::deque<uint64_t>			PMMDeque;
+typedef std::vector<uint64_t>			PMMVector;
+typedef std::list<uint64_t>				PMMList;
+typedef std::pair<uint64_t, uint64_t>	SortPair;
 
 /**
  * Per default, other containers than PMMDeque, PMMD and PMMVector are
@@ -124,7 +125,11 @@ private:
 	/**
 	 * The underlying container of the class. Includes the sequence.
 	 */
-	T	_data;
+	T			_data;
+	/**
+	 * The size of the sequence.
+	 */
+	size_t		_seq_size;
 	/**
 	 * The sorting algorithm for the random access iterators such as vector or
 	 * deque in this use case. Use this algorithm with the PMMDeque or PMMVector
@@ -152,6 +157,12 @@ private:
 	template <class Container>
 	void	_SortImpl(Container & o, std::bidirectional_iterator_tag)
 	throw(PMMException);
+	/**
+	 * This is the first step of the algorithm. We split the values into N/2
+	 * pairs with N the number of elements. If the N is odd, the last element is
+	 * isolated and not into a pair.
+	 */
+	void	_PairElements(uint64_t *isolated, bool *is_odd) throw(PMMException);
 };
 
 #include "PmergeMe.tpp"
