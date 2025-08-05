@@ -18,6 +18,8 @@ PmergeMe<T>::PmergeMe(const char **seq, size_t seq_size) throw(PMMException)
 	typedef is_allowed_container<T>	_check;
 	(void)sizeof(_check);
 
+	std::cout << stringify(42) << std::endl;
+
 	Fill(seq, seq_size);
 }
 
@@ -156,9 +158,9 @@ throw(PMMException)
 
 	for (; it != end; it += 2)
 	{
-		if (*it > *(it + 1))
-			pairs.push_back(std::make_pair(*(it + 1), *it));
-		else
-			pairs.push_back(std::make_pair(*it, *(it + 1)));
+		// if (*it > *(it + 1))
+		// 	pairs.push_back(std::make_pair(*(it + 1), *it));
+		// else
+		// 	pairs.push_back(std::make_pair(*it, *(it + 1)));
 	}
 }

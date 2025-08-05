@@ -98,9 +98,18 @@ public:
 	PmergeMe<T> &	operator=(const PmergeMe<Cont> & other) throw();
 
 	/**
-	 * Starts the algorithm and calls the private dispatcher to call the
+	 * @brief Starts the algorithm and calls the private dispatcher to call the
 	 * appropriate signature for the underlying container. Also includes an
 	 * internal timer (and returns its result).
+	 * 
+	 * 1. The algorithm starts with splitting the N values of a sequence into
+	 * N/2 pairs (with N the number of elements). If N is odd, the last element
+	 * is isolated and not into a pair.
+	 * 2. The pairs form a set of 2 sequences (one for the ->first elements and
+	 * one for the ->second elements), with the first one containing all the
+	 * greatest values and the second one containing all the smallest values. We
+	 * repeat the step 1 on each sequence (and so on).
+	 * 
 	 * 
 	 * @returns The time spent on the algorithm.
 	 * @throws Can throw an error if something unexpected occurs.
@@ -161,6 +170,9 @@ private:
 	 * This is the first step of the algorithm. We split the values into N/2
 	 * pairs with N the number of elements. If the N is odd, the last element is
 	 * isolated and not into a pair.
+	 * Then, the sequence is now split on two parts (first and second of each
+	 * pair form two sequences), and we have to call this function on each
+	 * newly-created sequence. We repeat the operation.
 	 */
 	void	_PairElements(uint64_t *isolated, bool *is_odd) throw(PMMException);
 };
