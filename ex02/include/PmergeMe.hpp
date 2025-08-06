@@ -14,10 +14,38 @@
 #define GREY "\e[38;2;100;100;100m"
 #define RESET "\e[0m"
 
-typedef std::deque<uint64_t>			PMMDeque;
-typedef std::vector<uint64_t>			PMMVector;
-typedef std::list<uint64_t>				PMMList;
-typedef std::pair<uint64_t, uint64_t>	SortPair;
+typedef std::deque<uint64_t>				PMMDeque;
+typedef std::vector<uint64_t>				PMMVector;
+typedef std::list<uint64_t>					PMMList;
+typedef std::pair<uint64_t, uint64_t>		U64Pair;
+typedef std::deque<U64Pair>					PMMDequePair;
+typedef std::vector<U64Pair>				PMMVectorPair;
+typedef std::list<U64Pair>					PMMDListPair;
+
+/**
+ * The data used to split the elements and to store the split elements.
+ * 
+ * @tparam T T is the container that contain the sequence to merge-insert.
+ * By default and portability, it can either be a Random Access Iterator
+ * container (deque, vector), or it can be a Bidirectionnal Iterator container
+ * (list).
+ */
+template <class T>
+struct s_algo_data
+{
+	/**
+	 * The boolean to indicate whether the sequence is odd or not.
+	 */
+	bool		is_isolated;
+	/**
+	 * The isolated element of the current sequence.
+	 */
+	uint64_t	isolated;
+	/**
+	 * The sequence to apply the merge-insertion on.
+	 */
+	T			sequence;
+};
 
 /**
  * Per default, other containers than PMMDeque, PMMD and PMMVector are
@@ -53,7 +81,7 @@ struct	is_allowed_container<PMMList>
  * container provides a `set' of uint64 elements. Per default, the well
  * managed containers are deque, list and vector.
  */
-template <class T = PMMDeque>
+template <class T = PMMDeque, class TPair = PMMDequePair>
 class PmergeMe
 {
 public:
@@ -78,7 +106,7 @@ public:
 	 * 
 	 * @param other The other instance of PmergeMe.
 	 * 
-	 * @tparam Any type of the sequences containers. If it is not, a
+	 * @tparam Cont Any type of the sequences containers. If it is not, a
 	 * compile-time error will occur.
 	 */
 	template <class Cont>
@@ -91,11 +119,14 @@ public:
 	 * 
 	 * @param other The other instance of PmergeMe.
 	 * 
-	 * @tparam Any type of the sequences containers. If it is not, a
+	 * @tparam Cont Any type of the sequences containers. If it is not, a
 	 * compile-time error will occur.
+	 * @tparam Cont The same container but for the pairs. It must be the same
+	 * type as Cont.
 	 */
-	template <class Cont>
-	PmergeMe<T> &	operator=(const PmergeMe<Cont> & other) throw();
+	template <class Cont, class ContPair>
+	PmergeMe<T, TPair> &	operator=(const PmergeMe<Cont, ContPair> & other)
+	throw();
 
 	/**
 	 * @brief Starts the algorithm and calls the private dispatcher to call the
@@ -105,11 +136,28 @@ public:
 	 * 1. The algorithm starts with splitting the N values of a sequence into
 	 * N/2 pairs (with N the number of elements). If N is odd, the last element
 	 * is isolated and not into a pair.
+	 * 
 	 * 2. The pairs form a set of 2 sequences (one for the ->first elements and
 	 * one for the ->second elements), with the first one containing all the
 	 * greatest values and the second one containing all the smallest values. We
-	 * repeat the step 1 on each sequence (and so on).
+	 * repeat the step 1 on each sequence (and so on). This algorithm is called
+	 * recursively until it is not possible anymore; and this sorts all the
+	 * elements and make them ready to be inserted again, it is called the
+	 * insertion list.
 	 * 
+	 * 3. Creation of the Jacobsthal sequence J(n) by going from the greatest
+	 * index to the smallest index.
+	 * 
+	 * 4. The optimal insertion: the first element of the insertion list is
+	 * inserted in first place. Then, following the order given by the
+	 * Jacobsthal sequence, we do a binary research to find the exact position
+	 * into the main list. Once the position is found, we step aside the 
+	 * elements if necessary and we insert the element into the correct
+	 * position.
+	 * 
+	 * 5. The insertion of the last element is the last step. If the list was
+	 * odd-sized, we have an isolated element. We use a binary research and we
+	 * do the step 4 on it.
 	 * 
 	 * @returns The time spent on the algorithm.
 	 * @throws Can throw an error if something unexpected occurs.
@@ -148,10 +196,16 @@ private:
 	 * @param tag A tag representing the iterator category.
 	 * @throws Can throw an error if something unexpected occurs.
 	 * 
-	 * @tparam The Random Access Iterator container type.
+	 * @tparam Container The Random Access Iterator container type.
+	 * @tparam PairContainer The Random Access Iterator container type but for
+	 * the pairs (same type as Container)
 	 */
-	template <class Container>
-	void	_SortImpl(Container & o, std::random_access_iterator_tag)
+	template <class Container, class PairContainer>
+	void	_SortImpl(
+		struct s_algo_data<Container> & data,
+		PairContainer,
+		std::random_access_iterator_tag
+	)
 	throw(PMMException);
 	/**
 	 * The sorting algorithm for the bidirectionnal containers such as list in
@@ -161,20 +215,17 @@ private:
 	 * @param tag A tag representing the iterator category.
 	 * @throws Can throw an error if something unexpected occurs.
 	 * 
-	 * @tparam The Bidirectionnal Iterator container type.
+	 * @tparam Container The Bidirectionnal Iterator container type.
+	 * @tparam PairContainer The Bidirectionnal Iterator container type but for
+	 * the pairs (same type as Container)
 	 */
-	template <class Container>
-	void	_SortImpl(Container & o, std::bidirectional_iterator_tag)
+	template <class Container, class PairContainer>
+	void	_SortImpl(
+		struct s_algo_data<Container> & data,
+		PairContainer,
+		std::bidirectional_iterator_tag
+	)
 	throw(PMMException);
-	/**
-	 * This is the first step of the algorithm. We split the values into N/2
-	 * pairs with N the number of elements. If the N is odd, the last element is
-	 * isolated and not into a pair.
-	 * Then, the sequence is now split on two parts (first and second of each
-	 * pair form two sequences), and we have to call this function on each
-	 * newly-created sequence. We repeat the operation.
-	 */
-	void	_PairElements(uint64_t *isolated, bool *is_odd) throw(PMMException);
 };
 
 #include "PmergeMe.tpp"

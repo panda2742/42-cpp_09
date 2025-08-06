@@ -18,7 +18,7 @@ int	main(int argc, char **argv)
 	{
 		std::cout << "\n" BLUE "[ Test with a deque ]" RESET "\n" << std::endl;
 
-		PmergeMe<PMMDeque>	awesome;
+		PmergeMe<PMMDeque, PMMDequePair>	awesome;
 		_filling_time(awesome.Fill(
 			const_cast<const char **>(argv), static_cast<size_t>(argc)
 		));
@@ -34,7 +34,7 @@ int	main(int argc, char **argv)
 	{
 		std::cout << "\n" PURPLE "[ Test with a vector ]" RESET "\n" << std::endl;
 
-		PmergeMe<PMMDeque>	awesome;
+		PmergeMe<PMMVector, PMMVectorPair>	awesome;
 		_filling_time(awesome.Fill(
 			const_cast<const char **>(argv), static_cast<size_t>(argc)
 		));
@@ -50,7 +50,7 @@ int	main(int argc, char **argv)
 	{
 		std::cout << "\n" YELLOW "[ Test with a list ]" RESET "\n" << std::endl;
 
-		PmergeMe<PMMList>	awesome;
+		PmergeMe<PMMList, PMMDListPair>	awesome;
 		_filling_time(awesome.Fill(
 			const_cast<const char **>(argv), static_cast<size_t>(argc)
 		));
