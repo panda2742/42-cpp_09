@@ -50,7 +50,7 @@ int	main(int argc, char **argv)
 	{
 		std::cout << "\n" YELLOW "[ Test with a list ]" RESET "\n" << std::endl;
 
-		PmergeMe<PMMList, PMMDListPair>	awesome;
+		PmergeMe<PMMList, PMMListPair>	awesome;
 		_filling_time(awesome.Fill(
 			const_cast<const char **>(argv), static_cast<size_t>(argc)
 		));

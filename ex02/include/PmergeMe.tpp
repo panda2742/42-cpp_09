@@ -7,12 +7,10 @@
 #include <cstdlib>
 #include <ctime>
 
-template <class T, class TPair>
-PmergeMe<T, TPair>::PmergeMe(void) throw(): _seq_size(0)
-{}
+template <class S> PmergeMe<S>::PmergeMe(void) throw(): _seq_size(0) {}
 
-template <class T, class TPair>
-PmergeMe<T, TPair>::PmergeMe(const char **seq, size_t seq_size) throw(PMMException)
+template <class S> PmergeMe<S>::PmergeMe(const char **seq, size_t seq_size)
+	throw(PMMException)
 	: _seq_size(0)
 {
 	typedef is_allowed_container<T>	_check;
@@ -21,9 +19,9 @@ PmergeMe<T, TPair>::PmergeMe(const char **seq, size_t seq_size) throw(PMMExcepti
 	Fill(seq, seq_size);
 }
 
-template <class T, class TPair>
-template <class Cont>
-PmergeMe<T, TPair>::PmergeMe(const PmergeMe<Cont> & other) throw(): _seq_size(0)
+template <class S>
+template <class T>
+PmergeMe<S>::PmergeMe(const PmergeMe<T> & other) throw(): _seq_size(0)
 {
 	typedef is_allowed_container<Cont>	_check;
 	(void)sizeof(_check());
@@ -32,13 +30,12 @@ PmergeMe<T, TPair>::PmergeMe(const PmergeMe<Cont> & other) throw(): _seq_size(0)
 	this->_seq_size = other._seq_size;
 }
 
-template <class T, class TPair>
-PmergeMe<T, TPair>::~PmergeMe(void) throw()
+template <class S> PmergeMe<S>::~PmergeMe(void) throw()
 {}
 
-template <class T, class TPair>
-template <class Cont, class ContPair>
-PmergeMe<T, TPair> &	PmergeMe<T, TPair>::operator=(const PmergeMe<Cont, ContPair> & other) throw()
+template <class S>
+template <class T>
+PmergeMe<S> &	PmergeMe<S>::operator=(const PmergeMe<T> & other) throw()
 {
 	typedef is_allowed_container<Cont>	_check;
 	(void)sizeof(_check());
@@ -46,8 +43,8 @@ PmergeMe<T, TPair> &	PmergeMe<T, TPair>::operator=(const PmergeMe<Cont, ContPair
 	this->_data.assign(other._data.begin(), other._data.end());
 }
 
-template <class T, class TPair>
-double	PmergeMe<T, TPair>::Fill(const char **seq, size_t seq_size) throw(PMMException)
+template <class S>
+double	PmergeMe<S>::Fill(const char **seq, size_t seq_size) throw(PMMException)
 {
 	std::clock_t	start = std::clock();
 
@@ -89,18 +86,15 @@ double	PmergeMe<T, TPair>::Fill(const char **seq, size_t seq_size) throw(PMMExce
 	return duration / CLOCKS_PER_SEC;
 }
 
-template <class T, class TPair>
-double	PmergeMe<T, TPair>::Sort(void) throw(PMMException)
+template <class S>
+double	PmergeMe<S>::FordJohnson(void) throw(PMMException)
 {
 	std::clock_t	start = std::clock();
 
 	if (start == static_cast<std::clock_t>(-1))
 		throw PMMException("Error: failed to start the clock.");
 
-	typedef struct s_algo_data<T>	SData;
-	SData	data_wrapper;
-	data_wrapper.sequence = _data;
-	_SortImpl(data_wrapper, TPair(), ContainerCategory());
+	
 
 	std::clock_t	end = std::clock();
 
@@ -112,80 +106,14 @@ double	PmergeMe<T, TPair>::Sort(void) throw(PMMException)
 	return duration / CLOCKS_PER_SEC;
 }
 
-template <class T, class TPair>
-void	PmergeMe<T, TPair>::Display(void) const throw()
+template <class S>
+void	PmergeMe<S>::Display(void) const throw()
 {
-	typename T::const_iterator	it = _data.begin();
-	typename T::const_iterator	end = _data.end();
+	typename S::const_iterator	it = _data.begin();
+	typename S::const_iterator	end = _data.end();
 
 	std::cout << GREY "\nElements:\n" << std::endl;
 	for (; it != end; ++it)
 		std::cout << *it << " ";
 	std::cout << RESET "\n" << std::endl;
-}
-
-// INFO PUBLIC DISPATCHED SORTING ALGORITHMS:    ///////////////////////////////
-
-// INFO RANDOM ACCESS ITERATOR IMPLEMENTATION
-
-template <class T, class TPair>
-template <class Container, class PairContainer>
-void	PmergeMe<T, TPair>::_SortImpl(
-	struct s_algo_data<Container> & data,
-	PairContainer,
-	std::random_access_iterator_tag
-)
-throw(PMMException)
-{
-	typedef struct s_algo_data<Container>	SData;
-
-	if (data.sequence.size() <= 1)
-		return ;
-
-	PairContainer	pairs;
-
-	if (data.sequence.size() % 2)
-	{
-		data.is_isolated = true;
-		data.isolated = data.sequence.back();
-		data.sequence.pop_back();
-	}
-
-	size_t	seq_len = data.sequence.size();
-	for (size_t	i = 0; i < seq_len; i += 2)
-	{
-		if (data.sequence[i + 1] > data.sequence[i])
-			pairs.push_back(
-				std::make_pair(data.sequence[i + 1], data.sequence[i])
-			);
-		else
-			pairs.push_back(
-				std::make_pair(data.sequence[i], data.sequence[i + 1])
-			);
-	}
-
-	SData	primary_seq_data, secondary_seq_data;
-
-	seq_len = pairs.size();
-	for (size_t	i = 0; i < seq_len; i++)
-	{
-		primary_seq_data.sequence.push_back(pairs[i].first);
-		secondary_seq_data.sequence.push_back(pairs[i].second);
-	}
-
-	_SortImpl(primary_seq_data, PairContainer(), std::random_access_iterator_tag());
-}
-
-// INFO BIDIRECTIONNAL ITERATOR IMPLEMENTATION
-
-template <class T, class TPair>
-template <class Container, class PairContainer>
-void	PmergeMe<T, TPair>::_SortImpl(
-	struct s_algo_data<Container> & data,
-	PairContainer,
-	std::bidirectional_iterator_tag
-)
-throw(PMMException)
-{
-	(void)data;
 }
