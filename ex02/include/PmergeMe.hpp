@@ -1,68 +1,46 @@
-#ifndef PMERGE_ME_HPP_
-#define PMERGE_ME_HPP_
+#ifndef PMERGE_ME_HPP
+#define PMERGE_ME_HPP
 
-#include <deque>
-#include <list>
-#include <string>
-#include <vector>
+#include <ctime>
 
-#include <inttypes.h>
-
+#include "sort/ASortable.hpp"
+#include "sort/DequeSortable.hpp"
 #include "PMMException.hpp"
 
 #define GREY "\e[38;2;100;100;100m"
 #define RESET "\e[0m"
 
-typedef std::deque<uint64_t>				PMMDeque;
-typedef std::vector<uint64_t>				PMMVector;
-typedef std::list<uint64_t>					PMMList;
+typedef struct timeval	timeval_t;
 
-typedef std::pair<uint64_t, uint64_t>		U64Pair;
-
-typedef std::deque<U64Pair>					PMMDequePair;
-typedef std::vector<U64Pair>				PMMVectorPair;
-typedef std::list<U64Pair>					PMMListPair;
-
-template <class U>
-struct	is_allowed_container
+template <class S = DequeSortable> class PmergeMe
 {
-	static const bool	value = false;
-};
-template <>
-struct	is_allowed_container<PMMDeque>
-{
-	static const bool	value = true;
-};
-template <>
-struct	is_allowed_container<PMMVector>
-{
-	static const bool	value = true;
-};
-template <>
-struct	is_allowed_container<PMMList>
-{
-	static const bool	value = true;
-};
+	public:
+		PmergeMe(const char **seq, size_t seq_size) throw(typename S::SortableInvalidElement);
+		template <class T> PmergeMe(const PmergeMe<T> & other) throw();
 
-template <class S>
-class PmergeMe
-{
-public:
-	PmergeMe(void) throw();
-	PmergeMe(const char **seq, size_t seq_size) throw(PMMException);
-	template <class T> PmergeMe(const PmergeMe<T> & other) throw();
+		~PmergeMe(void) throw();
 
-	~PmergeMe(void) throw();
+		PmergeMe &	operator=(const PmergeMe & other) throw();
 
-	template <class T> PmergeMe<S> &	operator=(const PmergeMe<T> & other)
-		throw();
+		void	FordJohnson(void) throw();
+		void	Display(void) const throw();
 
-	double	FordJohnson(void) throw(PMMException);
-	void	Display(void) const throw();
-private:
-	S	_sortable;
+		void	EnableTimeMeasure(void) throw();
+		void	DisableTimeMeasure(void) throw();
+		bool	IsTimeMeasureEnabled(void) const throw();
+		S		*GetSortable(void) const throw();
+
+	private:
+		S			*_sortable;
+		bool		_measure_time;
+		timeval_t	_tv_init_start;
+		timeval_t	_tv_init_end;
+		timeval_t	_tv_sort_start;
+		timeval_t	_tv_sort_end;
+		
+		PmergeMe(void) throw(PMMException);
 };
 
 #include "PmergeMe.tpp"
 
-#endif /* PMERGE_ME_HPP_ */
+#endif
