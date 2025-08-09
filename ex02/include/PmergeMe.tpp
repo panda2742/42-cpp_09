@@ -1,5 +1,6 @@
 #include "PmergeMe.hpp"
 
+#include <iomanip>
 #include <iostream>
 
 #include <sys/time.h>
@@ -15,6 +16,7 @@ template <class S>
 PmergeMe<S>::PmergeMe(const char **seq, size_t seq_size) throw(typename S::SortableInvalidElement)
 		: __sortable_(new S()), __measure_time_(false)
 {
+	EnableTimeMeasure();
 	try
 	{
 		if (__measure_time_ && gettimeofday(&__tv_init_start_, NULL) == -1)
@@ -31,8 +33,9 @@ PmergeMe<S>::PmergeMe(const char **seq, size_t seq_size) throw(typename S::Sorta
 		{
 			double	time_res = _GetTimeDiff(__tv_init_start_, __tv_init_end_);
 
+			std::cout << std::fixed << std::setprecision(3);
 			std::cout << BLUE_SILVER "Initialization took " RED << time_res << BLUE_SILVER "μs (~" BLUE_SILVER
-					<< time_res / 1000000L << BLUE_SILVER "s)." RESET << std::endl;
+					<< time_res / 1000L << BLUE_SILVER "ms)." RESET << std::endl;
 		}
 	}
 	catch (const std::exception & e)
@@ -84,8 +87,9 @@ void	PmergeMe<S>::FordJohnson(void)
 	{
 		double	time_res = _GetTimeDiff(__tv_sort_start_, __tv_sort_end_);
 
+		std::cout << std::fixed << std::setprecision(3);
 		std::cout << BLUE_SILVER "Sorting took " RED << time_res << BLUE_SILVER "μs (~" BLUE_SILVER
-				<< time_res / 1000000L << BLUE_SILVER "s)." RESET << std::endl;
+				<< time_res / 1000L << BLUE_SILVER "ms)." RESET << std::endl;
 	}
 }
 

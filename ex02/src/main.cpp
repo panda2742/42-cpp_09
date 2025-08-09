@@ -20,7 +20,8 @@ static void	__TestContainer(
 {
 	try
 	{
-		std::cout << "\n" << container_color << "[  Test with " << container_name << "  ]" << RESET "\n" << std::endl;
+		std::cout << "\n" << container_color << "[  Test with " << container_name << ", " << argc << " elements  ]"
+				<< RESET "\n" << std::endl;
 		PmergeMe<Sortable>	awesome(const_cast<const char **>(argv), static_cast<size_t>(argc));
 		awesome.EnableTimeMeasure();
 		awesome.FordJohnson();
@@ -29,6 +30,7 @@ static void	__TestContainer(
 	{
 		std::cout << e.what() << std::endl;
 	}
+	std::cout << RESET "\n" << std::endl;
 }
 
 int	main(int argc, char **argv)

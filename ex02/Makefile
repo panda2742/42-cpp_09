@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ehosta <ehosta@student.42lyon.fr>          +#+  +:+       +#+         #
+#    By: panda <panda@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/19 15:02:31 by ehosta            #+#    #+#              #
-#    Updated: 2025/07/26 06:32:58 by ehosta           ###   ########.fr        #
+#    Updated: 2025/08/09 22:00:48 by panda            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -69,22 +69,30 @@ run:
 	./$(NAME) 3 5 9 7 4
 	./$(NAME) "-1" "2"
 	./$(NAME) "ewfwfw1" "wihfeewhf"
-	./$(NAME) `shuf -i 1-100000 -n 10 | tr "\n" " "`
+	./$(NAME) `shuf -i 1-100000 -n 3000 | tr "\n" " "`
 
 .PHONY: vg
 vg:
 	@clear
 	$(MAKE) bonus
 	clear
-	$(VG) $(VGFLAGS) ./$(NAME) `shuf -i 1-100000 -n 3000 | tr "\n" " "`
-
-.PHONY: problems
-problems:
-	@clear
-	$(MAKE) bonus
-	clear
 	$(VG) $(VGFLAGS) ./$(NAME) 3 5 9 7 4
 	$(VG) $(VGFLAGS) ./$(NAME) "-1" "2"
 	$(VG) $(VGFLAGS) ./$(NAME) "ewfwfw1" "wihfeewhf"
+	$(VG) $(VGFLAGS) ./$(NAME) `shuf -i 1-100000 -n 3000 | tr "\n" " "`
+
+.PHONY: perf
+perf:
+	@clear
+	$(MAKE) bonus
+	clear
+	@truncate perf --size 0
+	@./$(NAME) `shuf -i 1-100000 -n 1000 | tr "\n" " "` >> perf
+	@./$(NAME) `shuf -i 1-100000 -n 3000 | tr "\n" " "` >> perf
+	@./$(NAME) `shuf -i 1-100000 -n 10000 | tr "\n" " "` >> perf
+	@./$(NAME) `shuf -i 1-100000 -n 20000 | tr "\n" " "` >> perf
+	@./$(NAME) `shuf -i 1-100000 -n 50000 | tr "\n" " "` >> perf
+	@./$(NAME) `shuf -i 1-1000000 -n 100000 | tr "\n" " "` >> perf
+	@cat perf | awk '{if(length($$0) > 141) print substr($$0,1,50) " ..."; else print $$0}'
 
 -include $(DEPS)
