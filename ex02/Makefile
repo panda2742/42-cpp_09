@@ -16,8 +16,8 @@ override INCLUDE_DIR	:=	include/
 override TEMPLATE_DIR	:=	include/
 override SOURCE_DIR		:=	src/
 INCLUDES				:=	$(addprefix sort/, ASortable DequeSortable ListSortable VectorSortable) PmergeMe PMMException
-TEMPLATES				:=	PmergeMe
-SOURCES					:=	$(addprefix sort/, ASortable DequeSortable ListSortable VectorSortable) main PmergeMe PMMException
+TEMPLATES				:=	$(addprefix sort/, ASortable) PmergeMe
+SOURCES					:=	$(addprefix sort/, DequeSortable ListSortable VectorSortable) main PmergeMe PMMException
 override INCLUDE		:=	$(addprefix $(INCLUDE_DIR), $(addsuffix .hpp, $(INCLUDES)))
 override TEMPLATE		:=	$(addprefix $(TEMPLATE_DIR), $(addsuffix .tpp, $(TEMPLATES)))
 override SOURCE			:=	$(addprefix $(SOURCE_DIR), $(addsuffix .cpp, $(SOURCES)))
@@ -27,7 +27,7 @@ override OBJ	:=	$(patsubst $(SOURCE_DIR)%.cpp, $(BUILD_DIR)%.o, $(SOURCE))
 override DEPS	:=	$(patsubst %.o, %.d, $(OBJ))
 override DIRS	:=	$(sort $(dir $(NAME) $(OBJ) $(DEPS)))
 
-CPPFLAGS	:=	-Wall -Wextra -Werror -MD -Wshadow --std=c++98 -g3
+CPPFLAGS	:=	-Wall -Wextra -Werror -MD -Wshadow --std=c++98
 MAKEFLAGS	:=	--no-print-directory
 GCC			:=	c++
 RM			:=	rm -rf
@@ -40,7 +40,7 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(GCC) $(CPPFLAGS) $(OBJ) -o $(NAME)
 
-$(BUILD_DIR)%.o: $(SOURCE_DIR)%.cpp Makefile $(INCLUDE) $(TEMPLATE) | $(DIRS)
+$(BUILD_DIR)%.o: $(SOURCE_DIR)%.cpp $(INCLUDE) $(TEMPLATE) | $(DIRS)
 	$(GCC) $(CPPFLAGS) -c -I$(INCLUDE_DIR) -I$(TEMPLATE_DIR) $< -o $@
 
 $(DIRS):
@@ -67,17 +67,23 @@ run:
 	@$(MAKE) bonus
 	@clear
 	./$(NAME) 3 5 9 7 4
-	./$(NAME) `shuf -i 1-100000 -n 3000 | tr "\n" " "`
 	./$(NAME) "-1" "2"
 	./$(NAME) "ewfwfw1" "wihfeewhf"
+	./$(NAME) `shuf -i 1-100000 -n 10 | tr "\n" " "`
 
 .PHONY: vg
 vg:
 	@clear
-	@$(MAKE) bonus
-	@clear
-	$(VG) $(VGFLAGS) ./$(NAME) 3 5 9 7 4
+	$(MAKE) bonus
+	clear
 	$(VG) $(VGFLAGS) ./$(NAME) `shuf -i 1-100000 -n 3000 | tr "\n" " "`
+
+.PHONY: problems
+problems:
+	@clear
+	$(MAKE) bonus
+	clear
+	$(VG) $(VGFLAGS) ./$(NAME) 3 5 9 7 4
 	$(VG) $(VGFLAGS) ./$(NAME) "-1" "2"
 	$(VG) $(VGFLAGS) ./$(NAME) "ewfwfw1" "wihfeewhf"
 

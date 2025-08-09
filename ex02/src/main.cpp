@@ -11,40 +11,31 @@
 #define YELLOW "\e[38;2;255;255;0m"
 #define GREEN "\e[38;2;0;255;0m"
 
+template <class Sortable>
+static void	__TestContainer(
+	int argc, char **argv,
+	const std::string & container_name,
+	const std::string & container_color
+)
+{
+	try
+	{
+		std::cout << "\n" << container_color << "[  Test with " << container_name << "  ]" << RESET "\n" << std::endl;
+		PmergeMe<Sortable>	awesome(const_cast<const char **>(argv), static_cast<size_t>(argc));
+		awesome.EnableTimeMeasure();
+		awesome.FordJohnson();
+	}
+	catch (const std::exception & e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+}
+
 int	main(int argc, char **argv)
 {
 	argv++;
 	argc--;
-	try
-	{
-		std::cout << "\n" BLUE "[ Test with a deque ]" RESET "\n" << std::endl;
-
-		PmergeMe<DequeSortable>	awesome(const_cast<const char **>(argv), static_cast<size_t>(argc));
-	}
-	catch (const std::exception & e)
-	{
-		std::cout << e.what() << std::endl;
-	}
-	try
-	{
-		std::cout << "\n" YELLOW "[ Test with a list ]" RESET "\n" << std::endl;
-
-		PmergeMe<ListSortable>	awesome(const_cast<const char **>(argv), static_cast<size_t>(argc));
-		awesome.Display();
-	}
-	catch (const std::exception & e)
-	{
-		std::cout << e.what() << std::endl;
-	}
-	try
-	{
-		std::cout << "\n" PURPLE "[ Test with a vector ]" RESET "\n" << std::endl;
-
-		PmergeMe<VectorSortable>	awesome(const_cast<const char **>(argv), static_cast<size_t>(argc));
-	}
-	catch (const std::exception & e)
-	{
-		std::cout << e.what() << std::endl;
-	}
-	std::cout << "===============================================" << std::endl;
+	__TestContainer<DequeSortable>(argc, argv, "Deque", BLUE);
+	// __TestContainer<ListSortable>(argc, argv, "List", YELLOW);
+	// __TestContainer<VectorSortable>(argc, argv, "Vector", PURPLE);
 }

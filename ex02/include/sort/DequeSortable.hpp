@@ -8,16 +8,22 @@
 #include <cstdlib>
 #include <deque>
 
-class DequeSortable : public ASortable<sortable_deque_t>
+class DequeSortable : public ASortable<sortable_deque_t, deque_pair_t>
 {
 	public:
-		DequeSortable(void) throw();
-		DequeSortable(const DequeSortable & other) throw();
-		~DequeSortable(void) throw();
+		typedef std::deque<bool>	Base;
+		typedef sortable_deque_t	ContainerType;
 
-		DequeSortable &	operator=(const DequeSortable & other) throw();
+		DequeSortable(void);
+		DequeSortable(const DequeSortable & other);
+		~DequeSortable(void);
 
-		void	Sort(void) const throw();
+		DequeSortable &	operator=(const DequeSortable & other);
+
+		sortable_deque_t &			Sort(void);
+
+	private:
+		virtual sortable_deque_t	__Recursion(deque_pair_t & pairs, bool is_odd, uint64_t isolated_element);
 };
 
 #endif

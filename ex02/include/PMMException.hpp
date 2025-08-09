@@ -10,12 +10,12 @@
 class PMMException: public std::exception
 {
 	public:
-		PMMException(const std::string & errMessage) throw();
+		PMMException(const std::string & err_message);
 		virtual ~PMMException(void) throw();
 		virtual const char	*what(void) const throw();
 
 	private:
-		std::string	_errMessage;
+		std::string	__err_message_;
 };
 
 #endif

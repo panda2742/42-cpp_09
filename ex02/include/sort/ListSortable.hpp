@@ -9,17 +9,24 @@
 #include <list>
 
 typedef std::list<uint64_t>	sortable_list_t;
+typedef std::list< std::pair<uint64_t, uint64_t> >	list_pair_t;
 
-class ListSortable : public ASortable<sortable_list_t>
+class ListSortable : public ASortable<sortable_list_t, list_pair_t>
 {
 	public:
-		ListSortable(void) throw();
-		ListSortable(const ListSortable & other) throw();
-		~ListSortable(void) throw();
+		typedef std::list<bool>	Base;
+		typedef sortable_list_t	ContainerType;
+	
+		ListSortable(void);
+		ListSortable(const ListSortable & other);
+		~ListSortable(void);
 
-		ListSortable &	operator=(const ListSortable & other) throw();
+		ListSortable &	operator=(const ListSortable & other);
 
-		void	Sort(void) const throw();
+		sortable_list_t &		Sort(void);
+
+	private:
+		virtual sortable_list_t	__Recursion(list_pair_t & pairs, bool is_odd, uint64_t isolated_element);
 };
 
 #endif
