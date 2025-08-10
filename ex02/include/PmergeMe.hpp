@@ -4,19 +4,20 @@
 #include <ctime>
 
 #include "sort/ASortable.hpp"
-#include "sort/DequeSortable.hpp"
+#include "sort/SortableDeque.hpp"
 #include "PMMException.hpp"
 
 #define GREY "\e[38;2;100;100;100m"
+#define GREEN "\e[38;2;0;255;0m"
 #define BLUE_SILVER "\e[38;2;230;220;255m"
 #define RESET "\e[0m"
 
 typedef struct timeval	timeval_t;
 
-template <class S = DequeSortable> class PmergeMe
+template <class S = SortableDeque> class PmergeMe
 {
 	public:
-		PmergeMe(const char **seq, size_t seq_size) throw(typename S::SortableInvalidElement);
+		PmergeMe(const char **seq, uint64_t seq_size) throw(typename S::SortableInvalidElement);
 		template <class T> PmergeMe(const PmergeMe<T> & other);
 
 		~PmergeMe(void);
@@ -41,7 +42,8 @@ template <class S = DequeSortable> class PmergeMe
 		
 		PmergeMe(void) throw(PMMException);
 
-		static double	_GetTimeDiff(timeval_t & start, timeval_t & end);
+		bool			__IsSorted(void) const;
+		static double	__GetTimeDiff(timeval_t & start, timeval_t & end);
 };
 
 #include "PmergeMe.tpp"

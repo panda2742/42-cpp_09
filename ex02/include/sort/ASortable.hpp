@@ -1,23 +1,29 @@
 #ifndef SORTABLE_HPP
 #define SORTABLE_HPP
 
-#include <inttypes.h>
-
 #include <cstdlib>
 #include <deque>
+#include <map>
+#include <memory>
+#include <string>
+#include <errno.h>
+#include "types.hpp"
 
-typedef std::deque<uint64_t>	sortable_deque_t;
-typedef std::deque< std::pair<uint64_t, uint64_t> >	deque_pair_t;
-
-template <class T = sortable_deque_t, class P = deque_pair_t> class ASortable
+template <template <class T, class Alloc> class Ctn = std::deque> class ASortable
 {
 	public:
-		typedef std::deque<bool>	Base;
-
-		typename T::iterator	begin(void) { return __sequence_.begin(); }
-		typename T::const_iterator	begin(void) const { return __sequence_.begin(); }
-		typename T::iterator	end(void) { return __sequence_.begin(); }
-		typename T::const_iterator	end(void) const { return __sequence_.begin(); }
+		typedef Ctn<uint64_t, std::allocator<uint64_t> >	seq_t;
+		typedef Ctn<
+			std::pair<uint64_t, uint64_t>,
+			std::allocator<std::pair<uint64_t, uint64_t> >
+		>													pair_seq_t;
+		typedef Ctn<bool, std::allocator<bool> >			bool_seq_t;
+		typedef std::map<
+			uint64_t,
+			Ctn<uint64_t, std::allocator<uint64_t> >
+		>													cache_t;
+		typedef typename seq_t::iterator					it_t;
+		typedef typename seq_t::const_iterator				const_it_t;
 
 		class SortableInvalidElement : public std::exception
 		{
@@ -27,22 +33,21 @@ template <class T = sortable_deque_t, class P = deque_pair_t> class ASortable
 		ASortable(void);
 		ASortable(const ASortable & other);
 		virtual ~ASortable(void);
+		ASortable &	operator=(const ASortable & other);
 
-		T &	GetSequence(void);
-		const T &	GetSequence(void) const;
-
-		virtual ASortable &	operator=(const ASortable & other);
-
-		void					Fill(const char **seq, size_t seq_size);
-		virtual T &				Sort(void) = 0;
+		const seq_t &	GetSequence(void) const;
+		thread_nuint64_t	GetThreadsDepth(void) const;
+		void			Fill(const char **seq, uint64_t seq_size);
+		virtual seq_t &	Sort(void) = 0;
 
 	protected:
-		T	__sequence_;
+		seq_t			__sequence_;
+		thread_nuint64_t	__threads_depth_;
 
-		virtual T				__Recursion(P & pairs, bool is_odd, uint64_t isolated_element) = 0;
-		void					__GenerateJacobsthalIndices(T & indices, size_t n) const;
-		void					__JacobsthalInsert(T & res, T & seq_to_insert) const;
-		typename T::iterator	__LowerBound(typename T::iterator first, typename T::iterator last, uint64_t value) const;
+		virtual seq_t		__Recursion(pair_seq_t & pairs, bool is_odd, uint64_t isolated_element) = 0;
+		virtual void		__JacobsthalInsert(seq_t & res, seq_t & seq_to_insert) const = 0;
+		virtual void		__GenerateJacobsthalIndices(seq_t & indices, uint64_t n) const = 0;
+		virtual const_it_t	__LowerBound(it_t first, it_t last, uint64_t value) const = 0;
 };
 
 #include "ASortable.tpp"

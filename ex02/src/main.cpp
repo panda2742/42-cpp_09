@@ -2,16 +2,16 @@
 
 #include <iostream>
 
-#include "sort/DequeSortable.hpp"
-#include "sort/ListSortable.hpp"
-#include "sort/VectorSortable.hpp"
+#include "sort/SortableDeque.hpp"
+#include "sort/SortableList.hpp"
+#include "sort/SortableVector.hpp"
 
 #define BLUE "\e[38;2;0;0;255m"
 #define PURPLE "\e[38;2;255;0;255m"
 #define YELLOW "\e[38;2;255;255;0m"
 #define GREEN "\e[38;2;0;255;0m"
 
-template <class Sortable>
+template <class Ctn>
 static void	__TestContainer(
 	int argc, char **argv,
 	const std::string & container_name,
@@ -22,7 +22,7 @@ static void	__TestContainer(
 	{
 		std::cout << "\n" << container_color << "[  Test with " << container_name << ", " << argc << " elements  ]"
 				<< RESET "\n" << std::endl;
-		PmergeMe<Sortable>	awesome(const_cast<const char **>(argv), static_cast<size_t>(argc));
+		PmergeMe<Ctn>	awesome(const_cast<const char **>(argv), static_cast<uint64_t>(argc));
 		awesome.EnableTimeMeasure();
 		awesome.FordJohnson();
 	}
@@ -37,7 +37,7 @@ int	main(int argc, char **argv)
 {
 	argv++;
 	argc--;
-	__TestContainer<DequeSortable>(argc, argv, "Deque", BLUE);
+	__TestContainer<SortableDeque>(argc, argv, "Deque", BLUE);
 	// __TestContainer<ListSortable>(argc, argv, "List", YELLOW);
 	// __TestContainer<VectorSortable>(argc, argv, "Vector", PURPLE);
 }

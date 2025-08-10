@@ -15,9 +15,9 @@ override NAME	:=	PmergeMe
 override INCLUDE_DIR	:=	include/
 override TEMPLATE_DIR	:=	include/
 override SOURCE_DIR		:=	src/
-INCLUDES				:=	$(addprefix sort/, ASortable DequeSortable ListSortable VectorSortable) PmergeMe PMMException
+INCLUDES				:=	$(addprefix sort/, ASortable SortableDeque SortableList SortableVector) PmergeMe PMMException
 TEMPLATES				:=	$(addprefix sort/, ASortable) PmergeMe
-SOURCES					:=	$(addprefix sort/, DequeSortable ListSortable VectorSortable) main PmergeMe PMMException
+SOURCES					:=	$(addprefix sort/, SortableDeque SortableList SortableVector) main PmergeMe PMMException
 override INCLUDE		:=	$(addprefix $(INCLUDE_DIR), $(addsuffix .hpp, $(INCLUDES)))
 override TEMPLATE		:=	$(addprefix $(TEMPLATE_DIR), $(addsuffix .tpp, $(TEMPLATES)))
 override SOURCE			:=	$(addprefix $(SOURCE_DIR), $(addsuffix .cpp, $(SOURCES)))
@@ -52,6 +52,7 @@ bonus: all
 .PHONY: clean
 clean:
 	$(RM) $(BUILD_DIR)
+	$(RM) perf
 
 .PHONY: fclean
 fclean: clean
@@ -86,13 +87,11 @@ perf:
 	@clear
 	$(MAKE) bonus
 	clear
-	@truncate perf --size 0
-	@./$(NAME) `shuf -i 1-100000 -n 1000 | tr "\n" " "` >> perf
+	@./$(NAME) `shuf -i 1-100000 -n 1000 | tr "\n" " "` > perf
 	@./$(NAME) `shuf -i 1-100000 -n 3000 | tr "\n" " "` >> perf
 	@./$(NAME) `shuf -i 1-100000 -n 10000 | tr "\n" " "` >> perf
 	@./$(NAME) `shuf -i 1-100000 -n 20000 | tr "\n" " "` >> perf
 	@./$(NAME) `shuf -i 1-100000 -n 50000 | tr "\n" " "` >> perf
-	@./$(NAME) `shuf -i 1-1000000 -n 100000 | tr "\n" " "` >> perf
 	@cat perf | awk '{if(length($$0) > 141) print substr($$0,1,50) " ..."; else print $$0}'
 
 -include $(DEPS)

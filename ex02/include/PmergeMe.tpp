@@ -7,13 +7,29 @@
 #include "PMMException.hpp"
 
 template <class S>
-double	PmergeMe<S>::_GetTimeDiff(timeval & start, timeval & end)
+double	PmergeMe<S>::__GetTimeDiff(timeval & start, timeval & end)
 {
 	return (end.tv_sec - start.tv_sec) * 1000000L + end.tv_usec - start.tv_usec;
 }
 
 template <class S>
-PmergeMe<S>::PmergeMe(const char **seq, size_t seq_size) throw(typename S::SortableInvalidElement)
+bool	PmergeMe<S>::__IsSorted(void) const
+{
+	const typename S::seq_t seq = __sortable_->GetSequence();
+
+	if (__sortable_->GetSequence().size() < 2)
+		return true;
+
+	for (typename S::const_it_t	it = seq.begin(); (it + 1) != seq.end(); it++)
+	{
+		if (*it > *(it + 1))
+			return false;
+	}
+	return true;
+}
+
+template <class S>
+PmergeMe<S>::PmergeMe(const char **seq, uint64_t seq_size) throw(typename S::SortableInvalidElement)
 		: __sortable_(new S()), __measure_time_(false)
 {
 	EnableTimeMeasure();
@@ -31,7 +47,7 @@ PmergeMe<S>::PmergeMe(const char **seq, size_t seq_size) throw(typename S::Sorta
 
 		if (__measure_time_)
 		{
-			double	time_res = _GetTimeDiff(__tv_init_start_, __tv_init_end_);
+			double	time_res = __GetTimeDiff(__tv_init_start_, __tv_init_end_);
 
 			std::cout << std::fixed << std::setprecision(3);
 			std::cout << BLUE_SILVER "Initialization took " RED << time_res << BLUE_SILVER "μs (~" BLUE_SILVER
@@ -85,7 +101,7 @@ void	PmergeMe<S>::FordJohnson(void)
 
 	if (__measure_time_)
 	{
-		double	time_res = _GetTimeDiff(__tv_sort_start_, __tv_sort_end_);
+		double	time_res = __GetTimeDiff(__tv_sort_start_, __tv_sort_end_);
 
 		std::cout << std::fixed << std::setprecision(3);
 		std::cout << BLUE_SILVER "Sorting took " RED << time_res << BLUE_SILVER "μs (~" BLUE_SILVER
@@ -96,10 +112,11 @@ void	PmergeMe<S>::FordJohnson(void)
 template <class S>
 void	PmergeMe<S>::Display(void) const
 {
-	const typename S::ContainerType seq = __sortable_->GetSequence();
+	const typename S::seq_t seq = __sortable_->GetSequence();
 
-	std::cout << GREY "Sequence data:" RESET "\n";
-	for (typename S::ContainerType::const_iterator	it = seq.begin(); it != seq.end(); it++)
+	std::cout << GREY "Sequence data: " << (__IsSorted() ? GREEN "sorted" : RED "not sorted");
+	std::cout << RESET "\n";
+	for (typename S::const_it_t	it = seq.begin(); it != seq.end(); it++)
 	{
 		if (it != seq.begin())
 			std::cout << "  ";
