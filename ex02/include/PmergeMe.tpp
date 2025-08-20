@@ -29,7 +29,7 @@ bool	PmergeMe<S>::__IsSorted(void) const
 }
 
 template <class S>
-PmergeMe<S>::PmergeMe(const char **seq, uint64_t seq_size) throw(typename S::SortableInvalidElement)
+PmergeMe<S>::PmergeMe(const char **seq, uint64_t seq_size)
 		: __sortable_(new S()), __measure_time_(false)
 {
 	EnableTimeMeasure();
@@ -56,6 +56,7 @@ PmergeMe<S>::PmergeMe(const char **seq, uint64_t seq_size) throw(typename S::Sor
 	}
 	catch (const std::exception & e)
 	{
+		delete __sortable_;
 		throw;
 	}
 }
@@ -150,7 +151,7 @@ S	*PmergeMe<S>::GetSortable(void) const
 }
 
 template <class S>
-PmergeMe<S>::PmergeMe(void) throw(PMMException)
+PmergeMe<S>::PmergeMe(void)
 		: __sortable_(NULL), __measure_time_(false)
 {
 	throw PMMException("This class cannot be instanciated without a sequence.");

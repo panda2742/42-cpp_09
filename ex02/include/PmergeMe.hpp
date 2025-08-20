@@ -17,7 +17,7 @@ typedef struct timeval	timeval_t;
 template <class S = SortableDeque> class PmergeMe
 {
 	public:
-		PmergeMe(const char **seq, uint64_t seq_size) throw(typename S::SortableInvalidElement);
+		PmergeMe(const char **seq, uint64_t seq_size);
 		template <class T> PmergeMe(const PmergeMe<T> & other);
 
 		~PmergeMe(void);
@@ -40,7 +40,7 @@ template <class S = SortableDeque> class PmergeMe
 		timeval_t	__tv_sort_start_;
 		timeval_t	__tv_sort_end_;
 		
-		PmergeMe(void) throw(PMMException);
+		PmergeMe(void);
 
 		bool			__IsSorted(void) const;
 		static double	__GetTimeDiff(timeval_t & start, timeval_t & end);

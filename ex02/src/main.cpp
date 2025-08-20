@@ -18,19 +18,21 @@ static void	__TestContainer(
 	const std::string & container_color
 )
 {
-	try
 	{
 		std::cout << "\n" << container_color << "[  Test with " << container_name << ", " << argc << " elements  ]"
 				<< RESET "\n" << std::endl;
-		PmergeMe<Ctn>	awesome(const_cast<const char **>(argv), static_cast<uint64_t>(argc));
-		awesome.EnableTimeMeasure();
-		awesome.FordJohnson();
+		try
+		{
+			PmergeMe<Ctn>	awesome(const_cast<const char **>(argv), static_cast<uint64_t>(argc));
+			awesome.EnableTimeMeasure();
+			awesome.FordJohnson();
+		}
+		catch (const std::exception & e)
+		{
+			std::cout << e.what() << std::endl;
+		}
+		std::cout << RESET "\n" << std::endl;
 	}
-	catch (const std::exception & e)
-	{
-		std::cout << e.what() << std::endl;
-	}
-	std::cout << RESET "\n" << std::endl;
 }
 
 int	main(int argc, char **argv)

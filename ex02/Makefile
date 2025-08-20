@@ -27,7 +27,7 @@ override OBJ	:=	$(patsubst $(SOURCE_DIR)%.cpp, $(BUILD_DIR)%.o, $(SOURCE))
 override DEPS	:=	$(patsubst %.o, %.d, $(OBJ))
 override DIRS	:=	$(sort $(dir $(NAME) $(OBJ) $(DEPS)))
 
-CPPFLAGS	:=	-Wall -Wextra -Werror -MD -Wshadow --std=c++98
+CPPFLAGS	:=	-Wall -Wextra -Werror -MD -Wshadow -g3 --std=c++98
 MAKEFLAGS	:=	--no-print-directory
 GCC			:=	c++
 RM			:=	rm -rf
@@ -63,9 +63,7 @@ re: fclean
 	$(MAKE)
 
 .PHONY: run
-run:
-	@clear
-	@$(MAKE) bonus
+run: bonus
 	@clear
 	./$(NAME) 3 5 9 7 4
 	./$(NAME) "-1" "2"
@@ -73,25 +71,12 @@ run:
 	./$(NAME) `shuf -i 1-100000 -n 3000 | tr "\n" " "`
 
 .PHONY: vg
-vg:
+vg: bonus
 	@clear
-	$(MAKE) bonus
-	clear
 	$(VG) $(VGFLAGS) ./$(NAME) 3 5 9 7 4
 	$(VG) $(VGFLAGS) ./$(NAME) "-1" "2"
 	$(VG) $(VGFLAGS) ./$(NAME) "ewfwfw1" "wihfeewhf"
+	$(VG) $(VGFLAGS) ./$(NAME) 3 5 9 7 4 5
 	$(VG) $(VGFLAGS) ./$(NAME) `shuf -i 1-100000 -n 3000 | tr "\n" " "`
-
-.PHONY: perf
-perf:
-	@clear
-	$(MAKE) bonus
-	clear
-	@./$(NAME) `shuf -i 1-100000 -n 1000 | tr "\n" " "` > perf
-	@./$(NAME) `shuf -i 1-100000 -n 3000 | tr "\n" " "` >> perf
-	@./$(NAME) `shuf -i 1-100000 -n 10000 | tr "\n" " "` >> perf
-	@./$(NAME) `shuf -i 1-100000 -n 20000 | tr "\n" " "` >> perf
-	@./$(NAME) `shuf -i 1-100000 -n 50000 | tr "\n" " "` >> perf
-	@cat perf | awk '{if(length($$0) > 141) print substr($$0,1,50) " ..."; else print $$0}'
 
 -include $(DEPS)

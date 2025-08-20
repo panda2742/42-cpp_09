@@ -1,9 +1,11 @@
 #include "ASortable.hpp"
+#include <string>
+#include <sstream>
 
 template <template <class T, class Alloc> class Ctn>
 const char	*ASortable<Ctn>::SortableInvalidElement::what(void) const throw()
 {
-	return "Invalid sequence element.";
+	return "Invalid sequence element (duplication or invalid type).";
 }
 
 template <template <class T, class Alloc> class Ctn>
@@ -43,20 +45,29 @@ thread_nuint64_t	ASortable<Ctn>::GetThreadsDepth(void) const
 template <template <class T, class Alloc> class Ctn>
 void	ASortable<Ctn>::Fill(const char **seq, uint64_t seq_size)
 {
+	std::string	check_duplicates;
+
 	for (uint64_t	i = 0; i < seq_size; i++)
 	{
 		std::string	str(seq[i]);
 		char		*endptr;
 
-		if (str.empty() || str[0] == '-')
-			throw SortableInvalidElement();
+		if (str.empty() || str[0] == '-') throw SortableInvalidElement();
 
 		errno = 0;
 		uint64_t	value = std::strtoul(str.c_str(), &endptr, 10);
 
-		if (*endptr != 0 || (value == ULONG_MAX && errno == ERANGE))
-			throw SortableInvalidElement();
-		
+		std::ostringstream	val_stream;
+		val_stream << "," << value << ",";
+		const std::string	val_str = val_stream.str();	
+
+		if (
+			*endptr != 0 ||
+			(value == ULONG_MAX && errno == ERANGE) ||
+			check_duplicates.find(val_str, 0) != std::string::npos
+		) throw SortableInvalidElement();
+
+		check_duplicates.append(val_str);
 		__sequence_.push_back(value);
 	}
 }
