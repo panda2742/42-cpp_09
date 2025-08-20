@@ -70,5 +70,4 @@ else
   awk -F'\n' '/took|sorted/ {print "\t" $0}' .perf
 fi
 
-rm -f .perf > /dev/null
 rm -f .perf_vg > /dev/null

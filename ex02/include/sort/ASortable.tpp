@@ -1,6 +1,9 @@
 #include "ASortable.hpp"
 #include <string>
 #include <sstream>
+#include <pthread.h>
+#include "utils.hpp"
+#include <iostream>
 
 template <template <class T, class Alloc> class Ctn>
 const char	*ASortable<Ctn>::SortableInvalidElement::what(void) const throw()
@@ -38,6 +41,10 @@ void	ASortable<Ctn>::Fill(const char **seq, uint64_t seq_size)
 {
 	std::string	check_duplicates;
 
+	Ctn<std::string, std::allocator<std::string> >	duplicates;
+	unsigned int	max_threads = get_hardware_concurrency();
+
+	std::cout << "MAX CONCURRENCY IS " << max_threads << std::endl;
 	for (uint64_t	i = 0; i < seq_size; i++)
 	{
 		std::string	str(seq[i]);

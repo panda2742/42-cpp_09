@@ -15,15 +15,15 @@ override NAME		:=	PmergeMe
 override INCLUDE_DIR	:=	include/
 override TEMPLATE_DIR	:=	include/
 override SOURCE_DIR		:=	src/
-INCLUDES				:=	$(addprefix sort/, ASortable SortableDeque SortableList SortableVector) PmergeMe PMMException
+INCLUDES				:=	$(addprefix sort/, ASortable SortableDeque SortableList SortableVector) PmergeMe PMMException utils
 TEMPLATES				:=	$(addprefix sort/, ASortable) PmergeMe
-SOURCES					:=	$(addprefix sort/, SortableDeque SortableList SortableVector) main PmergeMe PMMException
+SOURCES					:=	$(addprefix sort/, SortableDeque SortableList SortableVector) main PmergeMe PMMException utils
 override INCLUDE		:=	$(addprefix $(INCLUDE_DIR), $(addsuffix .hpp, $(INCLUDES)))
 override TEMPLATE		:=	$(addprefix $(TEMPLATE_DIR), $(addsuffix .tpp, $(TEMPLATES)))
 override SOURCE			:=	$(addprefix $(SOURCE_DIR), $(addsuffix .cpp, $(SOURCES)))
 
 CPPFLAGS	:=	-Wall -Wextra -Werror -MD -Wshadow -g3 --std=c++98
-TURBO_FLAGS	:=	-Ofast -finline-functions -m64 -fvectorize -D TURBO_IS_ON=1
+TURBO_FLAGS	:=	-Ofast -finline-functions -m64 -D TURBO_IS_ON=1
 TURBO		?=	0
 
 
@@ -96,5 +96,11 @@ vg: bonus
 	$(VG) $(VGFLAGS) ./$(NAME) "ewfwfw1" "wihfeewhf"
 	$(VG) $(VGFLAGS) ./$(NAME) 3 5 9 7 4 5
 	$(VG) $(VGFLAGS) ./$(NAME) `shuf -i 1-100000 -n 3000 | tr "\n" " "`
+
+.PHONY: boost
+boost: bonus
+	@clear
+	@echo "y\n" | ./scripts/perf.sh 3000
+	@cat .perf
 
 -include $(DEPS)
