@@ -27,33 +27,43 @@ BWhite='\033[1;37m'       # White
 
 
 NUMBER=$1
-SEQ=$(shuf -i 1-100000 -n ${NUMBER} | tr "\n" " ")
+SEQ=$(shuf -i 1-${NUMBER} -n ${NUMBER} | tr "\n" " ")
 
-echo -e -n "${Yellow} Do you want a deep test with Valgrind? (takes much more time) [${BGreen}y${Yellow} / ${BRed}n (default)${Yellow}]${Color_Off} "
+echo -e -n "${Black}Do you want a deep test with Valgrind? It is recommanded for small sequences (<5000). (takes much more time) [${BGreen}y${Black} / ${BRed}n (default)${Black}]${Color_Off} "
 read -r result
 
 make bonus > /dev/null
 
 y="y"
-if [ "$y" == $result ]; then
-  echo -e "${BPurple}Running script with Valgrind (memory check).${Color_Off}"
-  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-mismatched-frees=yes --track-fds=yes --trace-children=yes ./PmergeMe ${SEQ} 1> /dev/null 2> .perf_vg
+if [[ "$y" == "$result" ]]; then
+  echo -e "${Purple}Running script with Valgrind (memory check) with ${BRed}${NUMBER}${Purple} elements.${Color_Off}"
+  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-mismatched-frees=yes --track-fds=yes --trace-children=yes ./PmergeMe ${SEQ} 1> .perf 2> .perf_vg
 
-  echo -e "${BBlue}File Descriptors:${Color_Off}"
-  cat .perf_vg | grep -E "Open file" | sed 's/^==[0-9]*==\s*/\t/'
-  cat .perf_vg | grep -E "Open AF_UNIX" | sed 's/^==[0-9]*==\s*/\t/'
+  echo -e "${BBlue}- File Descriptors:${Color_Off}"
+  cat .perf_vg | grep "Open file" | sed 's/^==[0-9]*==\s*/\t/'
+  cat .perf_vg | grep "Open AF_UNIX" | sed 's/^==[0-9]*==\s*/\t/'
 
-  echo -e "\n${BGreen}Heap Memory Usage:${Color_Off}"
-  cat .perf_vg | grep -E "in use at exit" | sed 's/^==[0-9]*==\s*/\t/'
-  cat .perf_vg | grep -E "total heap usage" | sed 's/^==[0-9]*==\s*/\t/'
-  cat .perf_vg | grep -E "All heap blocks" | sed 's/^==[0-9]*==\s*/\t/'
+  echo -e "\n${BGreen}- Heap Memory Usage:${Color_Off}"
+  cat .perf_vg | grep "in use at exit" | sed 's/^==[0-9]*==\s*/\t/'
+  cat .perf_vg | grep "total heap usage" | sed 's/^==[0-9]*==\s*/\t/'
+  cat .perf_vg | grep "All heap blocks" | sed 's/^==[0-9]*==\s*/\t/'
 
-  echo -e "\n${BRed}Errors Summary:${Color_Off}"
-  cat .perf_vg | grep -E "ERROR SUMMARY:" | sed 's/^==[0-9]*==\s*/\t/' | sed 's/ERROR SUMMARY: //'
+  echo -e "\n${BRed}- Errors Summary:${Color_Off}"
+  cat .perf_vg | grep "ERROR SUMMARY:" | sed 's/^==[0-9]*==\s*/\t/' | sed 's/ERROR SUMMARY: //'
+
+  echo -e "\n${BYellow}- Time (with Valgrind!):${Color_Off}"
+  awk -F'\n' '/took|sorted/ {print "\t" $0}' .perf
+
+  ./PmergeMe ${SEQ} 1> .perf 2> /dev/null
+
+  echo -e "\n${BCyan}- Time (without Valgrind!):${Color_Off}"
+  awk -F'\n' '/took|sorted/ {print "\t" $0}' .perf
 else
-  echo -e "${BCyan}Running script without Valgrind.${Color_Off} "
-  ./PmergeMe ${SEQ} > .perf
-  cat .perf | awk '{if(length($$0) > 141) print substr($$0,1,50) " ..."; else print $$0}'
+  echo -e "${Cyan}Running script without Valgrind (fast check) with ${BRed}${NUMBER}${Purple} elements.${Color_Off}"
+  ./PmergeMe ${SEQ} 1> .perf 2> /dev/null
+
+  echo -e "${BCyan}- Time (without Valgrind!):${Color_Off}"
+  awk -F'\n' '/took|sorted/ {print "\t" $0}' .perf
 fi
 
 rm -f .perf > /dev/null

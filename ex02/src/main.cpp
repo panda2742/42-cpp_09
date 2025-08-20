@@ -23,7 +23,7 @@ static void	__TestContainer(
 				<< RESET "\n" << std::endl;
 		try
 		{
-			PmergeMe<Ctn>	awesome(const_cast<const char **>(argv), static_cast<uint64_t>(argc));
+			PmergeMe<Ctn>	awesome(const_cast<const char **>(argv), static_cast<uint64_t>(argc), "Std::" + container_name);
 			awesome.EnableTimeMeasure();
 			awesome.FordJohnson();
 		}

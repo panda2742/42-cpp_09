@@ -10,6 +10,8 @@
 #define GREY "\e[38;2;100;100;100m"
 #define GREEN "\e[38;2;0;255;0m"
 #define BLUE_SILVER "\e[38;2;230;220;255m"
+#define EMERALD_GREEN "\e[38;2;80;200;120m"
+#define AMBER "\e[38;2;255;191;0m"
 #define RESET "\e[0m"
 
 typedef struct timeval	timeval_t;
@@ -17,7 +19,7 @@ typedef struct timeval	timeval_t;
 template <class S = SortableDeque> class PmergeMe
 {
 	public:
-		PmergeMe(const char **seq, uint64_t seq_size);
+		PmergeMe(const char **seq, uint64_t seq_size, const std::string & container_name);
 		template <class T> PmergeMe(const PmergeMe<T> & other);
 
 		~PmergeMe(void);
@@ -35,6 +37,7 @@ template <class S = SortableDeque> class PmergeMe
 	private:
 		S			*__sortable_;
 		bool		__measure_time_;
+		std::string	__container_name;
 		timeval_t	__tv_init_start_;
 		timeval_t	__tv_init_end_;
 		timeval_t	__tv_sort_start_;

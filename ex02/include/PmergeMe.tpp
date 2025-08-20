@@ -29,10 +29,11 @@ bool	PmergeMe<S>::__IsSorted(void) const
 }
 
 template <class S>
-PmergeMe<S>::PmergeMe(const char **seq, uint64_t seq_size)
-		: __sortable_(new S()), __measure_time_(false)
+PmergeMe<S>::PmergeMe(const char **seq, uint64_t seq_size, const std::string & container_name)
+		: __sortable_(new S()), __measure_time_(false), __container_name(container_name)
 {
 	EnableTimeMeasure();
+	__container_name = container_name;
 	try
 	{
 		if (__measure_time_ && gettimeofday(&__tv_init_start_, NULL) == -1)
@@ -50,8 +51,10 @@ PmergeMe<S>::PmergeMe(const char **seq, uint64_t seq_size)
 			double	time_res = __GetTimeDiff(__tv_init_start_, __tv_init_end_);
 
 			std::cout << std::fixed << std::setprecision(3);
-			std::cout << BLUE_SILVER "Initialization took " RED << time_res << BLUE_SILVER "μs (~" BLUE_SILVER
-					<< time_res / 1000L << BLUE_SILVER "ms)." RESET << std::endl;
+			std::cout << BLUE_SILVER "[" RESET << __container_name << BLUE_SILVER "] Initialization took "
+				RED << time_res << BLUE_SILVER "μs (~"
+				AMBER << time_res / 1000L << BLUE_SILVER "ms, ~"
+				EMERALD_GREEN << time_res / 1000000L << BLUE_SILVER "s)." RESET << std::endl;
 		}
 	}
 	catch (const std::exception & e)
@@ -63,7 +66,7 @@ PmergeMe<S>::PmergeMe(const char **seq, uint64_t seq_size)
 
 template <class S>
 template <class T> PmergeMe<S>::PmergeMe(const PmergeMe<T> & other)
-		: __sortable_(new S(other.__sortable_)), __measure_time_(other.__measure_time_) {}
+		: __sortable_(new S(other.__sortable_)), __measure_time_(other.__measure_time_), __container_name(other.__container_name) {}
 
 template <class S>
 PmergeMe<S>::~PmergeMe(void)
@@ -80,6 +83,7 @@ PmergeMe<S> &	PmergeMe<S>::operator=(const PmergeMe<S> & other)
 		if (this->__sortable_)
 			delete this->__sortable_;
 
+		this->__container_name = other.__container_name;
 		this->__sortable_ = new S(other.__sortable_);
 		this->__measure_time_ = other.__measure_time_;
 	}
@@ -105,8 +109,10 @@ void	PmergeMe<S>::FordJohnson(void)
 		double	time_res = __GetTimeDiff(__tv_sort_start_, __tv_sort_end_);
 
 		std::cout << std::fixed << std::setprecision(3);
-		std::cout << BLUE_SILVER "Sorting took " RED << time_res << BLUE_SILVER "μs (~" BLUE_SILVER
-				<< time_res / 1000L << BLUE_SILVER "ms)." RESET << std::endl;
+		std::cout << BLUE_SILVER "[" RESET << __container_name << BLUE_SILVER "] Sorting took "
+			RED << time_res << BLUE_SILVER "μs (~"
+			AMBER << time_res / 1000L << BLUE_SILVER "ms, ~"
+			EMERALD_GREEN << time_res / 1000000L << BLUE_SILVER "s)." RESET << std::endl;
 	}
 }
 
@@ -152,7 +158,7 @@ S	*PmergeMe<S>::GetSortable(void) const
 
 template <class S>
 PmergeMe<S>::PmergeMe(void)
-		: __sortable_(NULL), __measure_time_(false)
+		: __sortable_(NULL), __measure_time_(false), __container_name("")
 {
 	throw PMMException("This class cannot be instanciated without a sequence.");
 }
