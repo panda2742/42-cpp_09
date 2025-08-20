@@ -29,15 +29,19 @@ BWhite='\033[1;37m'       # White
 NUMBER=$1
 SEQ=$(shuf -i 1-${NUMBER} -n ${NUMBER} | tr "\n" " ")
 
+if [ -f ./PmergeMe_with_turbo ]; then
+  EXEC="./PmergeMe_with_turbo"
+else
+  EXEC="./PmergeMe"
+fi
+
 echo -e -n "${Black}Do you want a deep test with Valgrind? It is recommanded for small sequences (<5000). (takes much more time) [${BGreen}y${Black} / ${BRed}n (default)${Black}]${Color_Off} "
 read -r result
-
-make bonus > /dev/null
 
 y="y"
 if [[ "$y" == "$result" ]]; then
   echo -e "${Purple}Running script with Valgrind (memory check) with ${BRed}${NUMBER}${Purple} elements.${Color_Off}"
-  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-mismatched-frees=yes --track-fds=yes --trace-children=yes ./PmergeMe ${SEQ} 1> .perf 2> .perf_vg
+  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-mismatched-frees=yes --track-fds=yes --trace-children=yes ${EXEC} ${SEQ} 1> .perf 2> .perf_vg
 
   echo -e "${BBlue}- File Descriptors:${Color_Off}"
   cat .perf_vg | grep "Open file" | sed 's/^==[0-9]*==\s*/\t/'
@@ -54,13 +58,13 @@ if [[ "$y" == "$result" ]]; then
   echo -e "\n${BYellow}- Time (with Valgrind!):${Color_Off}"
   awk -F'\n' '/took|sorted/ {print "\t" $0}' .perf
 
-  ./PmergeMe ${SEQ} 1> .perf 2> /dev/null
+  ${EXEC} ${SEQ} 1> .perf 2> /dev/null
 
   echo -e "\n${BCyan}- Time (without Valgrind!):${Color_Off}"
   awk -F'\n' '/took|sorted/ {print "\t" $0}' .perf
 else
   echo -e "${Cyan}Running script without Valgrind (fast check) with ${BRed}${NUMBER}${Purple} elements.${Color_Off}"
-  ./PmergeMe ${SEQ} 1> .perf 2> /dev/null
+  ${EXEC} ${SEQ} 1> .perf 2> /dev/null
 
   echo -e "${BCyan}- Time (without Valgrind!):${Color_Off}"
   awk -F'\n' '/took|sorted/ {print "\t" $0}' .perf

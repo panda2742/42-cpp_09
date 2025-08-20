@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-override NAME	:=	PmergeMe
+override NAME		:=	PmergeMe
 
 override INCLUDE_DIR	:=	include/
 override TEMPLATE_DIR	:=	include/
@@ -22,12 +22,25 @@ override INCLUDE		:=	$(addprefix $(INCLUDE_DIR), $(addsuffix .hpp, $(INCLUDES)))
 override TEMPLATE		:=	$(addprefix $(TEMPLATE_DIR), $(addsuffix .tpp, $(TEMPLATES)))
 override SOURCE			:=	$(addprefix $(SOURCE_DIR), $(addsuffix .cpp, $(SOURCES)))
 
-BUILD_DIR		:=	.dist/
+CPPFLAGS	:=	-Wall -Wextra -Werror -MD -Wshadow -g3 --std=c++98
+TURBO_FLAGS	:=	-Ofast -finline-functions -m64 -fvectorize -D TURBO_IS_ON=1
+TURBO		?=	0
+
+
+ifeq ($(TURBO),1)
+override NAME	:=	PmergeMe_with_turbo
+CPPFLAGS		+= $(TURBO_FLAGS)
+BUILD_DIR		:= .dist_turbo/
+else
+override NAME	:=	PmergeMe
+BUILD_DIR		:= .dist/
+endif
+
+
 override OBJ	:=	$(patsubst $(SOURCE_DIR)%.cpp, $(BUILD_DIR)%.o, $(SOURCE))
 override DEPS	:=	$(patsubst %.o, %.d, $(OBJ))
 override DIRS	:=	$(sort $(dir $(NAME) $(OBJ) $(DEPS)))
 
-CPPFLAGS	:=	-Wall -Wextra -Werror -MD -Wshadow -g3 --std=c++98
 MAKEFLAGS	:=	--no-print-directory
 GCC			:=	c++
 RM			:=	rm -rf
@@ -47,16 +60,21 @@ $(DIRS):
 	@mkdir -p $@
 
 .PHONY: bonus
-bonus: all
+bonus:
+	@$(MAKE) fclean
+	@$(MAKE) TURBO=1
 
 .PHONY: clean
 clean:
+	$(RM) .perf
+	$(RM) *.profraw
 	$(RM) $(BUILD_DIR)
-	$(RM) perf
+	$(RM) .dist_turbo/
 
 .PHONY: fclean
 fclean: clean
 	$(RM) $(NAME)
+	$(RM) PmergeMe_with_turbo
 
 .PHONY: re
 re: fclean

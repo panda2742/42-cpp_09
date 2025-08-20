@@ -10,10 +10,7 @@ SortableVector::~SortableVector(void) {}
 SortableVector &	SortableVector::operator=(const SortableVector & other)
 {
 	if (this != &other)
-	{
 		this->__sequence_ = other.__sequence_;
-		this->__threads_depth_ = other.__threads_depth_;
-	}
 
 	return *this;
 }

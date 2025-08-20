@@ -9,11 +9,11 @@ const char	*ASortable<Ctn>::SortableInvalidElement::what(void) const throw()
 }
 
 template <template <class T, class Alloc> class Ctn>
-ASortable<Ctn>::ASortable(void): __sequence_(Ctn<uint64_t, std::allocator<uint64_t> >()), __threads_depth_(THREAD_NSIZE_MAX) {}
+ASortable<Ctn>::ASortable(void): __sequence_(Ctn<uint64_t, std::allocator<uint64_t> >()) {}
 
 template <template <class T, class Alloc> class Ctn>
 ASortable<Ctn>::ASortable(const ASortable<Ctn> & other)
-	: __sequence_(other.__sequence_), __threads_depth_(THREAD_NSIZE_MAX) {}
+	: __sequence_(other.__sequence_) {}
 
 template <template <class T, class Alloc> class Ctn>
 ASortable<Ctn>::~ASortable(void) {}
@@ -22,10 +22,7 @@ template <template <class T, class Alloc> class Ctn>
 ASortable<Ctn> & ASortable<Ctn>::operator=(const ASortable<Ctn> & other)
 {
 	if (this != &other)
-	{
 		this->__sequence_ = other.__sequence_;
-		this->__threads_depth_ = other.__threads_depth_;
-	}
 
 	return *this;
 }
@@ -34,12 +31,6 @@ template <template <class T, class Alloc> class Ctn>
 const typename ASortable<Ctn>::seq_t &	ASortable<Ctn>::GetSequence(void) const
 {
 	return __sequence_;
-}
-
-template <template <class T, class Alloc> class Ctn>
-thread_nuint64_t	ASortable<Ctn>::GetThreadsDepth(void) const
-{
-	return __threads_depth_;
 }
 
 template <template <class T, class Alloc> class Ctn>

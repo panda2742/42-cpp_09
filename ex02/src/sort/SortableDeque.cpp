@@ -1,5 +1,6 @@
 #include "sort/SortableDeque.hpp"
 #include <deque>
+#include <pthread.h>
 
 SortableDeque::SortableDeque(void): ASortable() {}
 
@@ -10,10 +11,7 @@ SortableDeque::~SortableDeque(void) {}
 SortableDeque &	SortableDeque::operator=(const SortableDeque & other)
 {
 	if (this != &other)
-	{
 		this->__sequence_ = other.__sequence_;
-		this->__threads_depth_ = other.__threads_depth_;
-	}
 
 	return *this;
 }
@@ -37,9 +35,9 @@ SortableDeque::seq_t &	SortableDeque::Sort(void)
 	for (uint64_t	i = 0; i < __sequence_.size(); i += 2)
 	{
 		if (__sequence_[i] > __sequence_[i + 1])
-			pairs.push_front(std::make_pair(__sequence_[i], __sequence_[i + 1]));
+			pairs.push_back(std::make_pair(__sequence_[i], __sequence_[i + 1]));
 		else
-			pairs.push_front(std::make_pair(__sequence_[i + 1], __sequence_[i]));
+			pairs.push_back(std::make_pair(__sequence_[i + 1], __sequence_[i]));
 	}
 
 	__sequence_ = __Recursion(pairs, is_odd, isolated_element); 
@@ -91,7 +89,7 @@ SortableDeque::seq_t	SortableDeque::__Recursion(SortableDeque::pair_seq_t & pair
 			primary_pairs.push_back(std::make_pair(pairs[i].first, pairs[i + 1].first));
 		else
 			primary_pairs.push_back(std::make_pair(pairs[i + 1].first, pairs[i].first));
-		
+
 		seq_to_insert.push_back(pairs[i].second);
 		seq_to_insert.push_back(pairs[i + 1].second);
 	}
