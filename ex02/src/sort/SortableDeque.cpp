@@ -177,7 +177,7 @@ void	SortableDeque::__JacobsthalInsert(seq_t & res, seq_t & seq_to_insert) const
 {
 	if (seq_to_insert.empty())
 		return;
-	
+
 	seq_t	jacobsthal_indices;
 	__GenerateJacobsthalIndices(jacobsthal_indices, seq_to_insert.size());
 
