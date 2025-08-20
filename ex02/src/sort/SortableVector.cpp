@@ -33,19 +33,19 @@ SortableVector::seq_t	SortableVector::__Recursion(SortableVector::pair_seq_t & p
 	return null;
 }
 
-void	SortableVector::__JacobsthalInsert(SortableVector::seq_t & res, SortableVector::seq_t & seq_to_insert) const
+void	SortableVector::__JacobsthalInsert(SortableVector::seq_t & res, SortableVector::seq_t & seq_to_insert)
 {
 	(void)res;
 	(void)seq_to_insert;
 }
 
-void	SortableVector::__GenerateJacobsthalIndices(SortableVector::seq_t & indices, uint64_t n) const
+void	SortableVector::__GenerateJacobsthalIndices(SortableVector::seq_t & indices, uint64_t n)
 {
 	(void)indices;
 	(void)n;
 }
 
-SortableVector::const_it_t	SortableVector::__LowerBound(SortableVector::it_t first, SortableVector::it_t last, uint64_t value) const
+SortableVector::it_t	SortableVector::__LowerBound(SortableVector::it_t first, SortableVector::it_t last, uint64_t value)
 {
 	(void)first;
 	(void)last;

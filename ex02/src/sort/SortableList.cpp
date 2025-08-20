@@ -33,19 +33,19 @@ SortableList::seq_t	SortableList::__Recursion(SortableList::pair_seq_t & pairs, 
 	return null;
 }
 
-void	SortableList::__JacobsthalInsert(SortableList::seq_t & res, SortableList::seq_t & seq_to_insert) const
+void	SortableList::__JacobsthalInsert(SortableList::seq_t & res, SortableList::seq_t & seq_to_insert)
 {
 	(void)res;
 	(void)seq_to_insert;
 }
 
-void	SortableList::__GenerateJacobsthalIndices(SortableList::seq_t & indices, uint64_t n) const
+void	SortableList::__GenerateJacobsthalIndices(SortableList::seq_t & indices, uint64_t n)
 {
 	(void)indices;
 	(void)n;
 }
 
-SortableList::const_it_t	SortableList::__LowerBound(SortableList::it_t first, SortableList::it_t last, uint64_t value) const
+SortableList::it_t	SortableList::__LowerBound(SortableList::it_t first, SortableList::it_t last, uint64_t value)
 {
 	(void)first;
 	(void)last;
