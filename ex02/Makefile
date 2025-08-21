@@ -23,7 +23,7 @@ override TEMPLATE		:=	$(addprefix $(TEMPLATE_DIR), $(addsuffix .tpp, $(TEMPLATES
 override SOURCE			:=	$(addprefix $(SOURCE_DIR), $(addsuffix .cpp, $(SOURCES)))
 
 CPPFLAGS	:=	-Wall -Wextra -Werror -MD -Wshadow -g3 --std=c++98
-TURBO_FLAGS	:=	-O3 -ffast-math -finline-functions -m64 -pthread -D TURBO_IS_ON=1
+TURBO_FLAGS	:=	-O3 -ffast-math -finline-functions -m64 -pthread
 TURBO		?=	0
 
 
@@ -68,6 +68,7 @@ bonus:
 clean:
 	$(RM) .perf
 	$(RM) *.profraw
+	$(RM) .large
 	$(RM) $(BUILD_DIR)
 	$(RM) .dist_turbo/
 

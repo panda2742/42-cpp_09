@@ -1,6 +1,7 @@
 #include "PmergeMe.hpp"
 
 #include <iostream>
+#include <iterator>
 #include <fstream>
 
 #include "sort/SortableDeque.hpp"
@@ -25,7 +26,7 @@ static void	__TestContainer(
 	{
 		PmergeMe<Ctn>	awesome(const_cast<const char **>(argv), static_cast<uint64_t>(argc), "Std::" + container_name);
 		awesome.EnableTimeMeasure();
-		awesome.FordJohnson();
+		// awesome.FordJohnson();
 	}
 	catch (const std::exception & e)
 	{
@@ -39,29 +40,45 @@ int	main(int argc, char **argv)
 	argv++;
 	argc--;
 	char	**tokens = argv;
+
 	if (std::string(argv[0]).substr(0, 5) == "file:")
 	{
-		std::ifstream file(std::string(argv[0]).substr(5));
-		if (!file) {
+		std::ifstream	file(std::string(argv[0]).substr(5));
+		if (!file)
+		{
 			std::cout << RED "Wrong usage: either a sequence or a file:<filename> argument is expected." RESET
 				<< std::endl;
 			return 1;
 		}
 
-		std::istream_iterator<std::string> begin(file);
-		std::istream_iterator<std::string> end;
-		std::vector<std::string> words(begin, end);
+		std::istream_iterator<std::string>	begin(file);
+		std::istream_iterator<std::string>	end;
+		std::vector<std::string>			words(begin, end);
 
-		size_t	count = words.size();
-		tokens = new char*[count];
+		argc = words.size();
+		if ((unsigned int)argc >= UINT_MAX)
+		{
+			std::cout << RED "Wrong usage: either a sequence or a file:<filename> argument is expected." RESET
+				<< std::endl;
+			return 1;
+		}
 
-		size_t	i = 0;
-		for (; i < count; ++i) {
+		tokens = new char*[argc];
+
+		int	i = 0;
+		for (; i < argc; ++i)
+		{
 			tokens[i] = new char[words[i].size() + 1];
 			std::strcpy(tokens[i], words[i].c_str());
 		}
-		argc = i;
 	}
+	if ((unsigned int)argc >= UINT_MAX)
+	{
+		std::cout << RED "Wrong usage: either a sequence or a file:<filename> argument is expected." RESET
+			<< std::endl;
+		return 1;
+	}
+
 	__TestContainer<SortableDeque>(argc, tokens, "Deque", BLUE);
 	// __TestContainer<ListSortable>(argc, argv, "List", YELLOW);
 	// __TestContainer<VectorSortable>(argc, argv, "Vector", PURPLE);

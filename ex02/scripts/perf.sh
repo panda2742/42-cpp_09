@@ -28,16 +28,17 @@ BWhite='\033[1;37m'       # White
 
 NUMBER=$1
 
-shuf -i 1-${NUMBER} -n ${NUMBER} | tr "\n" " " > .large
-
 if [ -f ./PmergeMe_with_turbo ]; then
   EXEC="./PmergeMe_with_turbo"
 else
   EXEC="./PmergeMe"
 fi
 
-echo -e -n "${Black}Do you want a deep test with Valgrind? It is recommanded for small sequences (<5000). (takes much more time) [${BGreen}y${Black} / ${BRed}n (default)${Black}]${Color_Off} "
+echo -e "${Black}Do you want a deep test with Valgrind? It is recommanded for small sequences (<5000). (takes much more time) [${BGreen}y${Black} / ${BRed}n (default)${Black}]${Color_Off} "
 read -r result
+
+echo -e "${Black}Loading file...${Color_Off}"
+shuf -i 1-${NUMBER} -n ${NUMBER} | tr "\n" " " > .large
 
 y="y"
 if [[ "$y" == "$result" && "$(uname)" != "Darwin" ]]; then
@@ -64,7 +65,7 @@ if [[ "$y" == "$result" && "$(uname)" != "Darwin" ]]; then
   echo -e "\n${BCyan}- Time (without Valgrind!):${Color_Off}"
   awk -F'\n' '/took|sorted/ {print "\t" $0}' .perf
 else
-  echo -e "${Cyan}Running script without Valgrind (fast check) with ${BRed}${NUMBER}${Purple} elements.${Color_Off}"
+  echo -e "${Cyan}Running script without Valgrind (fast check) with ${BRed}${NUMBER}${Cyan} elements.${Color_Off}"
   ${EXEC} file:.large 1> .perf 2> /dev/null
 
   echo -e "${BCyan}- Time (without Valgrind!):${Color_Off}"

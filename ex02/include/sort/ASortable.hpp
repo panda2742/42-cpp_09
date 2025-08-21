@@ -7,7 +7,35 @@
 #include <memory>
 #include <string>
 #include <errno.h>
+#include <pthread.h>
 #include "types.hpp"
+
+#define THREAD_THRESHOLD 100000
+#define MIN_BLOCK 20000
+#define MIN_PAIRS 4096
+
+static pthread_mutex_t	g_jac_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+template <template <class T, class Alloc> class Ctn = std::deque> struct s_thread_args
+{
+	typedef Ctn<uint64_t, std::allocator<uint64_t> >	seq_t;
+
+	const char		**seq;
+	unsigned int	start;
+	unsigned int	end;
+	seq_t			*out;
+	bool			error;
+};
+
+template <template <class T, class Alloc> class Ctn = std::deque> struct s_recur_args
+{
+	ASortable				*self;
+	ASortable::pair_seq_t	*pairs;
+	bool					is_odd;
+	uint64_t				isolated;
+	unsigned int			depth;
+	ASortable::seq_t		*out;
+};
 
 template <template <class T, class Alloc> class Ctn = std::deque> class ASortable
 {
@@ -46,6 +74,9 @@ template <template <class T, class Alloc> class Ctn = std::deque> class ASortabl
 		virtual void	__JacobsthalInsert(seq_t & res, seq_t & seq_to_insert) = 0;
 		virtual void	__GenerateJacobsthalIndices(seq_t & indices, uint64_t n) = 0;
 		virtual it_t	__LowerBound(it_t first, it_t last, uint64_t value) = 0;
+
+		static void		*__T_FillChunk(void *void_args);
+		static void		*__T_SortingWorker(void *void_args);
 };
 
 #include "ASortable.tpp"
