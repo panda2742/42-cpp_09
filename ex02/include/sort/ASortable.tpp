@@ -1,9 +1,10 @@
 #include "ASortable.hpp"
+#include <set>
 #include <string>
 #include <sstream>
+#include <iostream>
 #include <pthread.h>
 #include "utils.hpp"
-#include <iostream>
 
 template <template <class T, class Alloc> class Ctn>
 const char	*ASortable<Ctn>::SortableInvalidElement::what(void) const throw()
@@ -39,12 +40,12 @@ const typename ASortable<Ctn>::seq_t &	ASortable<Ctn>::GetSequence(void) const
 template <template <class T, class Alloc> class Ctn>
 void	ASortable<Ctn>::Fill(const char **seq, uint64_t seq_size)
 {
-	std::string	check_duplicates;
+	std::set<uint64_t>	seen;
 
-	Ctn<std::string, std::allocator<std::string> >	duplicates;
-	unsigned int	max_threads = get_hardware_concurrency();
+	// On s'en fout de ça, ignore
+	// Ctn<std::string, std::allocator<std::string> >	duplicates;
+	// unsigned int	max_threads = get_hardware_concurrency();
 
-	std::cout << "MAX CONCURRENCY IS " << max_threads << std::endl;
 	for (uint64_t	i = 0; i < seq_size; i++)
 	{
 		std::string	str(seq[i]);
@@ -54,18 +55,14 @@ void	ASortable<Ctn>::Fill(const char **seq, uint64_t seq_size)
 
 		errno = 0;
 		uint64_t	value = std::strtoul(str.c_str(), &endptr, 10);
-
-		std::ostringstream	val_stream;
-		val_stream << "," << value << ",";
-		const std::string	val_str = val_stream.str();	
+		
 
 		if (
 			*endptr != 0 ||
 			(value == ULONG_MAX && errno == ERANGE) ||
-			check_duplicates.find(val_str, 0) != std::string::npos
+			!seen.insert(value).second
 		) throw SortableInvalidElement();
 
-		check_duplicates.append(val_str);
 		__sequence_.push_back(value);
 	}
 }

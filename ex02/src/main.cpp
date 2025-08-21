@@ -1,6 +1,7 @@
 #include "PmergeMe.hpp"
 
 #include <iostream>
+#include <fstream>
 
 #include "sort/SortableDeque.hpp"
 #include "sort/SortableList.hpp"
@@ -37,7 +38,34 @@ int	main(int argc, char **argv)
 {
 	argv++;
 	argc--;
-	__TestContainer<SortableDeque>(argc, argv, "Deque", BLUE);
+	char	**tokens = argv;
+	if (std::string(argv[0]).substr(0, 5) == "file:")
+	{
+		std::ifstream file(std::string(argv[0]).substr(5));
+		if (!file) {
+			std::cout << RED "Wrong usage: either a sequence or a file:<filename> argument is expected." RESET
+				<< std::endl;
+			return 1;
+		}
+
+		std::istream_iterator<std::string> begin(file);
+		std::istream_iterator<std::string> end;
+		std::vector<std::string> words(begin, end);
+
+		size_t	count = words.size();
+		tokens = new char*[count];
+
+		size_t	i = 0;
+		for (; i < count; ++i) {
+			tokens[i] = new char[words[i].size() + 1];
+			std::strcpy(tokens[i], words[i].c_str());
+		}
+		argc = i;
+	}
+	__TestContainer<SortableDeque>(argc, tokens, "Deque", BLUE);
 	// __TestContainer<ListSortable>(argc, argv, "List", YELLOW);
 	// __TestContainer<VectorSortable>(argc, argv, "Vector", PURPLE);
+
+    for (; argc > 0; argc--) delete[] tokens[argc];
+    delete[] tokens;
 }
