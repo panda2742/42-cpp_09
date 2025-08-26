@@ -22,7 +22,7 @@ override INCLUDE		:=	$(addprefix $(INCLUDE_DIR), $(addsuffix .hpp, $(INCLUDES)))
 override TEMPLATE		:=	$(addprefix $(TEMPLATE_DIR), $(addsuffix .tpp, $(TEMPLATES)))
 override SOURCE			:=	$(addprefix $(SOURCE_DIR), $(addsuffix .cpp, $(SOURCES)))
 
-CPPFLAGS	:=	-Wall -Wextra -Werror -MD -Wshadow -g3 --std=c++98
+CPPFLAGS	:=	-Wall -Wextra -Werror -MD -Wshadow -g3 --std=c++98 #-fsanitize=address
 TURBO_FLAGS	:=	-O3 -ffast-math -finline-functions -m64 -pthread
 TURBO		?=	0
 
@@ -61,12 +61,12 @@ $(DIRS):
 
 .PHONY: bonus
 bonus:
-	@$(MAKE) fclean
 	@$(MAKE) TURBO=1
 
 .PHONY: clean
 clean:
 	$(RM) .perf
+	$(RM) .perf_err
 	$(RM) *.profraw
 	$(RM) .large
 	$(RM) $(BUILD_DIR)
@@ -103,5 +103,6 @@ boost: bonus
 	@clear
 	@echo "y\n" | ./scripts/perf.sh 3000
 	@cat .perf
+	@cat .perf_vg
 
 -include $(DEPS)

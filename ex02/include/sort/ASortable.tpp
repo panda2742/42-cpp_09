@@ -1,6 +1,7 @@
 #include "ASortable.hpp"
 #include <set>
 #include <string>
+#include <cstring>
 #include <sstream>
 #include <iostream>
 #include <pthread.h>
@@ -48,6 +49,7 @@ void	ASortable<Ctn>::Fill(const char **seq, uint64_t seq_size)
 
 	if (seq_size < THREAD_THRESHOLD)
 	{
+		std::cout << "Sequence size: " << seq_size << " < THREAD_THRESHOLD, no threads." << std::endl;
 		std::set<uint64_t>	seen;
 		for (uint64_t	i = 0; i < seq_size; i++)
 		{
@@ -62,6 +64,7 @@ void	ASortable<Ctn>::Fill(const char **seq, uint64_t seq_size)
 			) throw SortableInvalidElement();
 			__sequence_.push_back(value);
 		}
+		return;
 	}
 
 	unsigned int	max_threads = get_hardware_concurrency();
@@ -79,6 +82,8 @@ void	ASortable<Ctn>::Fill(const char **seq, uint64_t seq_size)
 	pthread_t			*threads = new pthread_t[nthreads];
 	s_thread_args<Ctn>	*args = new s_thread_args<Ctn>[nthreads];
 	seq_t				*locals = new seq_t[nthreads];
+	
+	std::cout << "Sequence size: " << seq_size << ", " << nthreads << " threads for initialization." << std::endl;
 
 	unsigned int	t = 0;
 	for (; t < nthreads; t++)

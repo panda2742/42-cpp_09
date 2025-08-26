@@ -43,7 +43,7 @@ PmergeMe<S>::PmergeMe(const char **seq, uint64_t seq_size, const std::string & c
 
 		if (__measure_time_ && gettimeofday(&__tv_init_end_, NULL) == -1)
 			__measure_time_ = false;
-	
+
 		Display();
 
 		if (__measure_time_)
@@ -51,10 +51,8 @@ PmergeMe<S>::PmergeMe(const char **seq, uint64_t seq_size, const std::string & c
 			double	time_res = __GetTimeDiff(__tv_init_start_, __tv_init_end_);
 
 			std::cout << std::fixed << std::setprecision(3);
-			std::cout << BLUE_SILVER "[" RESET << __container_name << BLUE_SILVER "] Initialization took "
-				RED << time_res << BLUE_SILVER "μs (~"
-				AMBER << time_res / 1000L << BLUE_SILVER "ms, ~"
-				EMERALD_GREEN << time_res / 1000000L << BLUE_SILVER "s)." RESET << std::endl;
+			std::cout << "[" << __container_name << "] Initialization: " << time_res << "μs (~" << time_res / 1000L
+				<< "ms, ~" << time_res / 1000000L << "s)." << std::endl;
 		}
 	}
 	catch (const std::exception & e)
@@ -109,10 +107,8 @@ void	PmergeMe<S>::FordJohnson(void)
 		double	time_res = __GetTimeDiff(__tv_sort_start_, __tv_sort_end_);
 
 		std::cout << std::fixed << std::setprecision(3);
-		std::cout << BLUE_SILVER "[" RESET << __container_name << BLUE_SILVER "] Sorting took "
-			RED << time_res << BLUE_SILVER "μs (~"
-			AMBER << time_res / 1000L << BLUE_SILVER "ms, ~"
-			EMERALD_GREEN << time_res / 1000000L << BLUE_SILVER "s)." RESET << std::endl;
+		std::cout << "[" << __container_name << "] Sorting: " << time_res << "μs (~" << time_res / 1000L
+			<< "ms, ~" << time_res / 1000000L << "s)." << std::endl;
 	}
 }
 
@@ -121,7 +117,7 @@ void	PmergeMe<S>::Display(void) const
 {
 	const typename S::seq_t seq = __sortable_->GetSequence();
 
-	std::cout << GREY "Sequence data: " << (__IsSorted() ? GREEN "sorted" : RED "not sorted");
+	std::cout << "Sequence data: " << (__IsSorted() ? GREEN "sorted" : RED "not sorted");
 	std::cout << RESET "\n";
 	for (typename S::const_it_t	it = seq.begin(); it != seq.end(); it++)
 	{

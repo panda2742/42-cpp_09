@@ -27,16 +27,6 @@ template <template <class T, class Alloc> class Ctn = std::deque> struct s_threa
 	bool			error;
 };
 
-template <template <class T, class Alloc> class Ctn = std::deque> struct s_recur_args
-{
-	ASortable				*self;
-	ASortable::pair_seq_t	*pairs;
-	bool					is_odd;
-	uint64_t				isolated;
-	unsigned int			depth;
-	ASortable::seq_t		*out;
-};
-
 template <template <class T, class Alloc> class Ctn = std::deque> class ASortable
 {
 	public:
@@ -76,7 +66,6 @@ template <template <class T, class Alloc> class Ctn = std::deque> class ASortabl
 		virtual it_t	__LowerBound(it_t first, it_t last, uint64_t value) = 0;
 
 		static void		*__T_FillChunk(void *void_args);
-		static void		*__T_SortingWorker(void *void_args);
 };
 
 #include "ASortable.tpp"

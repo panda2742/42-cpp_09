@@ -40,10 +40,11 @@ int	main(int argc, char **argv)
 	argv++;
 	argc--;
 	char	**tokens = argv;
+	bool	allocated = false;
 
 	if (std::string(argv[0]).substr(0, 5) == "file:")
 	{
-		std::ifstream	file(std::string(argv[0]).substr(5));
+		std::ifstream	file(std::string(argv[0]).substr(5).c_str());
 		if (!file)
 		{
 			std::cout << RED "Wrong usage: either a sequence or a file:<filename> argument is expected." RESET
@@ -64,9 +65,9 @@ int	main(int argc, char **argv)
 		}
 
 		tokens = new char*[argc];
+		allocated = true;
 
-		int	i = 0;
-		for (; i < argc; ++i)
+		for (int	i = 0; i < argc; ++i)
 		{
 			tokens[i] = new char[words[i].size() + 1];
 			std::strcpy(tokens[i], words[i].c_str());
@@ -83,6 +84,10 @@ int	main(int argc, char **argv)
 	// __TestContainer<ListSortable>(argc, argv, "List", YELLOW);
 	// __TestContainer<VectorSortable>(argc, argv, "Vector", PURPLE);
 
-    for (; argc > 0; argc--) delete[] tokens[argc];
-    delete[] tokens;
+	if (allocated)
+	{
+		for (int	i = 0; i < argc; ++i)
+			delete[] tokens[i];
+		delete[] tokens;
+	}
 }
