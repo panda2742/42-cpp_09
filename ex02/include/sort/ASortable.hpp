@@ -63,8 +63,6 @@ template <template <class T, class Alloc> class Ctn = std::deque> class ASortabl
 
 		virtual seq_t	Recursion_(pair_seq_t & pairs, bool is_odd, uint64_t isolated_element) = 0;
 		virtual void	JacobsthalInsert_(seq_t & res, seq_t & seq_to_insert) = 0;
-		virtual void	GenerateJacobsthalIndices_(seq_t & indices, uint64_t n) = 0;
-		virtual it_t	LowerBound_(it_t first, it_t last, uint64_t value) = 0;
 
 		static void		*T_FillChunk_(void *void_args);
 };

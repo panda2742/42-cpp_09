@@ -4,7 +4,7 @@
 #include <climits>
 #include <utility>
 
-#include "inttypes.h"
+#include <inttypes.h>
 
 typedef std::pair<uint64_t, uint64_t>	uint64_pair_t;
 

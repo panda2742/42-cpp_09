@@ -1,3 +1,4 @@
+#include "sort/Algorithm.hpp"
 #include "sort/SortableDeque.hpp"
 #include <deque>
 #include <pthread.h>
@@ -111,73 +112,13 @@ SortableDeque::seq_t	SortableDeque::Recursion_(SortableDeque::pair_seq_t & pairs
 	return res;
 }
 
-
-void	SortableDeque::GenerateJacobsthalIndices_(SortableDeque::seq_t & indices, uint64_t n)
-{
-    static cache_t	cache;
-
-    indices.clear();
-    if (n == 0) return;
-
-	cache_t::iterator	it = cache.find(n);
-
-    if (it == cache.end())
-    {
-        seq_t	jacobsthal;
-        jacobsthal.push_back(1);
-        if (n > 1)
-            jacobsthal.push_back(1);
-
-        while (jacobsthal.back() < n)
-        {
-            uint64_t	next = jacobsthal[jacobsthal.size() - 1] + 2 * jacobsthal[jacobsthal.size() - 2];
-            if (next > n)
-                break;
-            jacobsthal.push_back(next);
-        }
-
-        seq_t		order;
-        bool_seq_t	used(n, false);
-
-        order.push_back(0);
-        used[0] = true;
-
-        for (uint64_t i = 2; i < jacobsthal.size(); ++i)
-        {
-            uint64_t	start = jacobsthal[i] - 1;
-            uint64_t	end   = jacobsthal[i - 1];
-
-            for (uint64_t j = start; j >= end && j < n; --j)
-            {
-                if (!used[j])
-                {
-                    order.push_back(j);
-                    used[j] = true;
-                }
-                if (j == 0)
-                    break;
-            }
-        }
-
-        for (uint64_t i = 0; i < n; ++i)
-            if (!used[i])
-                order.push_back(i);
-
-        it = cache.insert(std::make_pair(n, order)).first;
-    }
-
-	for (const_it_t jt = it->second.begin(); jt != it->second.end(); ++jt)
-	    indices.push_back(static_cast<uint64_t>(*jt));
-
-}
-
 void	SortableDeque::JacobsthalInsert_(seq_t & res, seq_t & seq_to_insert)
 {
 	if (seq_to_insert.empty())
 		return;
 
 	seq_t	jacobsthal_indices;
-	GenerateJacobsthalIndices_(jacobsthal_indices, seq_to_insert.size());
+	Algorithm<SortableDeque>::GenerateJacobsthalIndices(jacobsthal_indices, seq_to_insert.size());
 
 	for (uint64_t	i = 0; i < jacobsthal_indices.size(); i++)
 	{
@@ -186,39 +127,8 @@ void	SortableDeque::JacobsthalInsert_(seq_t & res, seq_t & seq_to_insert)
 		if (idx < seq_to_insert.size())
 		{
 			uint64_t	element = seq_to_insert[idx];
-			it_t		pos = LowerBound_(res.begin(), res.end(), element);
+			it_t		pos = Algorithm<SortableDeque>::LowerBound(res.begin(), res.end(), element);
 			res.insert(pos, element);
 		}
 	}
-}
-
-SortableDeque::it_t	SortableDeque::LowerBound_(it_t first, it_t last, uint64_t value)
-{
-	it_t		it, temp = first;
-	uint64_t	count = 0, step;
-
-	while (temp != last)
-	{
-		++temp;
-		++count;
-	}
-
-	while (count > 0)
-	{
-		it = first;
-		step = count / 2;
-
-		for (uint64_t	i = 0; i < step; i++)
-			it++;
-		
-		if (*it < value)
-		{
-			first = it;
-			++first;
-			count -= step + 1;
-		}
-		else count = step;
-	}
-
-	return first;
 }

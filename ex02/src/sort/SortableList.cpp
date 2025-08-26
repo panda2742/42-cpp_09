@@ -35,17 +35,3 @@ void	SortableList::JacobsthalInsert_(SortableList::seq_t & res, SortableList::se
 	(void)res;
 	(void)seq_to_insert;
 }
-
-void	SortableList::GenerateJacobsthalIndices_(SortableList::seq_t & indices, uint64_t n)
-{
-	(void)indices;
-	(void)n;
-}
-
-SortableList::it_t	SortableList::LowerBound_(SortableList::it_t first, SortableList::it_t last, uint64_t value)
-{
-	(void)first;
-	(void)last;
-	(void)value;
-	return sequence_.begin();
-}
