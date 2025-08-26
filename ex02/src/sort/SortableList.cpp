@@ -10,7 +10,7 @@ SortableList::~SortableList(void) {}
 SortableList &	SortableList::operator=(const SortableList & other)
 {
 	if (this != &other)
-		this->__sequence_ = other.__sequence_;
+		this->sequence_ = other.sequence_;
 
 	return *this;
 }
@@ -18,10 +18,10 @@ SortableList &	SortableList::operator=(const SortableList & other)
 SortableList::seq_t	&	SortableList::Sort(void)
 {
 	std::cout << "Sorted list" << std::endl;
-	return __sequence_;
+	return sequence_;
 }
 
-SortableList::seq_t	SortableList::__Recursion(SortableList::pair_seq_t & pairs, bool is_odd, uint64_t isolated_element)
+SortableList::seq_t	SortableList::Recursion_(SortableList::pair_seq_t & pairs, bool is_odd, uint64_t isolated_element)
 {
 	(void)pairs;
 	(void)is_odd;
@@ -30,22 +30,22 @@ SortableList::seq_t	SortableList::__Recursion(SortableList::pair_seq_t & pairs, 
 	return null;
 }
 
-void	SortableList::__JacobsthalInsert(SortableList::seq_t & res, SortableList::seq_t & seq_to_insert)
+void	SortableList::JacobsthalInsert_(SortableList::seq_t & res, SortableList::seq_t & seq_to_insert)
 {
 	(void)res;
 	(void)seq_to_insert;
 }
 
-void	SortableList::__GenerateJacobsthalIndices(SortableList::seq_t & indices, uint64_t n)
+void	SortableList::GenerateJacobsthalIndices_(SortableList::seq_t & indices, uint64_t n)
 {
 	(void)indices;
 	(void)n;
 }
 
-SortableList::it_t	SortableList::__LowerBound(SortableList::it_t first, SortableList::it_t last, uint64_t value)
+SortableList::it_t	SortableList::LowerBound_(SortableList::it_t first, SortableList::it_t last, uint64_t value)
 {
 	(void)first;
 	(void)last;
 	(void)value;
-	return __sequence_.begin();
+	return sequence_.begin();
 }

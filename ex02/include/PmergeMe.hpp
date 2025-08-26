@@ -35,18 +35,18 @@ template <class S = SortableDeque> class PmergeMe
 		S		*GetSortable(void) const;
 
 	private:
-		S					*__sortable_;
-		bool				__measure_time_;
-		std::string			__container_name;
-		timeval_t			__tv_init_start_;
-		timeval_t			__tv_init_end_;
-		timeval_t			__tv_sort_start_;
-		timeval_t			__tv_sort_end_;
+		S					*sortable_;
+		bool				measure_time_;
+		std::string			container_name_;
+		timeval_t			tv_init_start_;
+		timeval_t			tv_init_end_;
+		timeval_t			tv_sort_start_;
+		timeval_t			tv_sort_end_;
 		
 		PmergeMe(void);
 
-		bool			__IsSorted(void) const;
-		static double	__GetTimeDiff(timeval_t & start, timeval_t & end);
+		bool			IsSorted_(void) const;
+		static double	GetTimeDiff_(timeval_t & start, timeval_t & end);
 };
 
 #include "PmergeMe.tpp"

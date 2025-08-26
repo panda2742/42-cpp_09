@@ -11,40 +11,40 @@ SortableDeque::~SortableDeque(void) {}
 SortableDeque &	SortableDeque::operator=(const SortableDeque & other)
 {
 	if (this != &other)
-		this->__sequence_ = other.__sequence_;
+		this->sequence_ = other.sequence_;
 
 	return *this;
 }
 
 SortableDeque::seq_t &	SortableDeque::Sort(void)
 {
-	if (__sequence_.size() < 2)
-		return __sequence_;
+	if (sequence_.size() < 2)
+		return sequence_;
 
-	const bool	is_odd = __sequence_.size() % 2;
+	const bool	is_odd = sequence_.size() % 2;
 	uint64_t	isolated_element = ULONG_MAX;
 
 	if (is_odd)
 	{
-		isolated_element = __sequence_.back();
-		__sequence_.pop_back();
+		isolated_element = sequence_.back();
+		sequence_.pop_back();
 	}
 
 	pair_seq_t	pairs;
 
-	for (uint64_t	i = 0; i < __sequence_.size(); i += 2)
+	for (uint64_t	i = 0; i < sequence_.size(); i += 2)
 	{
-		if (__sequence_[i] > __sequence_[i + 1])
-			pairs.push_back(std::make_pair(__sequence_[i], __sequence_[i + 1]));
+		if (sequence_[i] > sequence_[i + 1])
+			pairs.push_back(std::make_pair(sequence_[i], sequence_[i + 1]));
 		else
-			pairs.push_back(std::make_pair(__sequence_[i + 1], __sequence_[i]));
+			pairs.push_back(std::make_pair(sequence_[i + 1], sequence_[i]));
 	}
 
-	__sequence_ = __Recursion(pairs, is_odd, isolated_element); 
-	return __sequence_;
+	sequence_ = Recursion_(pairs, is_odd, isolated_element); 
+	return sequence_;
 }
 
-SortableDeque::seq_t	SortableDeque::__Recursion(SortableDeque::pair_seq_t & pairs, bool is_odd, uint64_t isolated_element)
+SortableDeque::seq_t	SortableDeque::Recursion_(SortableDeque::pair_seq_t & pairs, bool is_odd, uint64_t isolated_element)
 {
 	seq_t	res;
 
@@ -94,9 +94,9 @@ SortableDeque::seq_t	SortableDeque::__Recursion(SortableDeque::pair_seq_t & pair
 		seq_to_insert.push_back(pairs[i + 1].second);
 	}
 
-	res = __Recursion(primary_pairs, new_is_odd, new_isolated_element);
+	res = Recursion_(primary_pairs, new_is_odd, new_isolated_element);
 
-	__JacobsthalInsert(res, seq_to_insert);
+	JacobsthalInsert_(res, seq_to_insert);
 
 	if (is_odd && isolated_element != ULONG_MAX)
 	{
@@ -112,7 +112,7 @@ SortableDeque::seq_t	SortableDeque::__Recursion(SortableDeque::pair_seq_t & pair
 }
 
 
-void	SortableDeque::__GenerateJacobsthalIndices(SortableDeque::seq_t & indices, uint64_t n)
+void	SortableDeque::GenerateJacobsthalIndices_(SortableDeque::seq_t & indices, uint64_t n)
 {
     static cache_t	cache;
 
@@ -171,13 +171,13 @@ void	SortableDeque::__GenerateJacobsthalIndices(SortableDeque::seq_t & indices, 
 
 }
 
-void	SortableDeque::__JacobsthalInsert(seq_t & res, seq_t & seq_to_insert)
+void	SortableDeque::JacobsthalInsert_(seq_t & res, seq_t & seq_to_insert)
 {
 	if (seq_to_insert.empty())
 		return;
 
 	seq_t	jacobsthal_indices;
-	__GenerateJacobsthalIndices(jacobsthal_indices, seq_to_insert.size());
+	GenerateJacobsthalIndices_(jacobsthal_indices, seq_to_insert.size());
 
 	for (uint64_t	i = 0; i < jacobsthal_indices.size(); i++)
 	{
@@ -186,13 +186,13 @@ void	SortableDeque::__JacobsthalInsert(seq_t & res, seq_t & seq_to_insert)
 		if (idx < seq_to_insert.size())
 		{
 			uint64_t	element = seq_to_insert[idx];
-			it_t		pos = __LowerBound(res.begin(), res.end(), element);
+			it_t		pos = LowerBound_(res.begin(), res.end(), element);
 			res.insert(pos, element);
 		}
 	}
 }
 
-SortableDeque::it_t	SortableDeque::__LowerBound(it_t first, it_t last, uint64_t value)
+SortableDeque::it_t	SortableDeque::LowerBound_(it_t first, it_t last, uint64_t value)
 {
 	it_t		it, temp = first;
 	uint64_t	count = 0, step;

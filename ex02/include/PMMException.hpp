@@ -15,7 +15,7 @@ class PMMException: public std::exception
 		virtual const char	*what(void) const throw();
 
 	private:
-		std::string	__err_message_;
+		std::string	err_message_;
 };
 
 #endif
