@@ -157,5 +157,3 @@ void	*ASortable<Ctn>::__T_FillChunk(void *void_args)
 
 	return NULL;
 }
-
-
