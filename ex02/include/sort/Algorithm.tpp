@@ -231,3 +231,6 @@ void	Algorithm<Sortable>::GenerateJacobsthalIndices(Seq & indices, uint64_t n)
 {
 	return GenerateJacobsthalIndicesImpl_(indices, n, typename std::iterator_traits<It>::iterator_category());
 }
+
+template <class Sortable>
+void

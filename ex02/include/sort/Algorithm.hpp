@@ -21,6 +21,7 @@ class Algorithm
 
 		static It	LowerBound(It first, It last, uint64_t value);
 		static void	GenerateJacobsthalIndices(Seq & indices, uint64_t n);
+		static void	JacobsthalInsert(Seq & res, Seq & seq_to_insert);
 	private:
 		Algorithm(void);
 		~Algorithm(void);
@@ -31,6 +32,8 @@ class Algorithm
 		static It	LowerBoundImpl_(It first, It last, uint64_t value, std::bidirectional_iterator_tag);
 		static void	GenerateJacobsthalIndicesImpl_(Seq & indices, uint64_t n, std::random_access_iterator_tag);
 		static void	GenerateJacobsthalIndicesImpl_(Seq & indices, uint64_t n, std::bidirectional_iterator_tag);
+		static void	JacobsthalInsertImpl_(Seq & res, Seq & seq_to_insert, std::random_access_iterator_tag);
+		static void	JacobsthalInsertImpl_(Seq & res, Seq & seq_to_insert, std::bidirectional_iterator_tag);
 };
 
 #include "Algorithm.tpp"
