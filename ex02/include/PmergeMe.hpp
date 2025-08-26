@@ -36,7 +36,6 @@ template <class S = SortableDeque> class PmergeMe
 
 	private:
 		S					*__sortable_;
-		typename S::seq_t	__copy_;
 		bool				__measure_time_;
 		std::string			__container_name;
 		timeval_t			__tv_init_start_;

@@ -11,8 +11,7 @@
 #include "types.hpp"
 
 #define THREAD_THRESHOLD 100000
-#define MIN_BLOCK 20000
-#define MIN_PAIRS 4096
+#define MIN_BLOCK 75000
 
 static pthread_mutex_t	g_jac_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -54,11 +53,13 @@ template <template <class T, class Alloc> class Ctn = std::deque> class ASortabl
 		ASortable &	operator=(const ASortable & other);
 
 		const seq_t &	GetSequence(void) const;
+		const seq_t &	GetCopy(void) const;
 		void			Fill(const char **seq, uint64_t seq_size);
 		virtual seq_t &	Sort(void) = 0;
 
 	protected:
 		seq_t			__sequence_;
+		seq_t			__copy_;
 
 		virtual seq_t	__Recursion(pair_seq_t & pairs, bool is_odd, uint64_t isolated_element) = 0;
 		virtual void	__JacobsthalInsert(seq_t & res, seq_t & seq_to_insert) = 0;

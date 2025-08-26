@@ -14,11 +14,11 @@ const char	*ASortable<Ctn>::SortableInvalidElement::what(void) const throw()
 }
 
 template <template <class T, class Alloc> class Ctn>
-ASortable<Ctn>::ASortable(void): __sequence_(Ctn<uint64_t, std::allocator<uint64_t> >()) {}
+ASortable<Ctn>::ASortable(void): __sequence_(Ctn<uint64_t, std::allocator<uint64_t> >()), __copy_(__sequence_) {}
 
 template <template <class T, class Alloc> class Ctn>
 ASortable<Ctn>::ASortable(const ASortable<Ctn> & other)
-	: __sequence_(other.__sequence_) {}
+	: __sequence_(other.__sequence_), __copy_(__sequence_) {}
 
 template <template <class T, class Alloc> class Ctn>
 ASortable<Ctn>::~ASortable(void) {}
@@ -27,7 +27,11 @@ template <template <class T, class Alloc> class Ctn>
 ASortable<Ctn> & ASortable<Ctn>::operator=(const ASortable<Ctn> & other)
 {
 	if (this != &other)
+	{
 		this->__sequence_ = other.__sequence_;
+		this->__sequence_ = other.__sequence_;
+		this->__copy_ = other.__copy_;
+	}
 
 	return *this;
 }
@@ -36,6 +40,12 @@ template <template <class T, class Alloc> class Ctn>
 const typename ASortable<Ctn>::seq_t &	ASortable<Ctn>::GetSequence(void) const
 {
 	return __sequence_;
+}
+
+template <template <class T, class Alloc> class Ctn>
+const typename ASortable<Ctn>::seq_t &	ASortable<Ctn>::GetCopy(void) const
+{
+	return __copy_;
 }
 
 template <template <class T, class Alloc> class Ctn>
@@ -64,6 +74,7 @@ void	ASortable<Ctn>::Fill(const char **seq, uint64_t seq_size)
 			) throw SortableInvalidElement();
 			__sequence_.push_back(value);
 		}
+		__copy_ = __sequence_;
 		return;
 	}
 
@@ -127,6 +138,8 @@ void	ASortable<Ctn>::Fill(const char **seq, uint64_t seq_size)
 			__sequence_.push_back(*it);
 		}
 	}
+
+	__copy_ = __sequence_;
 
 	delete[] threads;
 	delete[] args;

@@ -16,16 +16,17 @@ template <class S>
 bool	PmergeMe<S>::__IsSorted(void) const
 {
 	const typename S::seq_t seq = __sortable_->GetSequence();
+	const typename S::seq_t copy = __sortable_->GetCopy();
 
 	if (__sortable_->GetSequence().size() < 2)
-		return true;
+		return true && copy.size() == seq.size();
 
 	for (typename S::const_it_t	it = seq.begin(); (it + 1) != seq.end(); it++)
 	{
 		if (*it > *(it + 1))
 			return false;
 	}
-	return true;
+	return true && copy.size() == seq.size();
 }
 
 template <class S>

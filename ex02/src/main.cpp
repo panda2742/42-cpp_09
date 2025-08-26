@@ -26,7 +26,7 @@ static void	__TestContainer(
 	{
 		PmergeMe<Ctn>	awesome(const_cast<const char **>(argv), static_cast<uint64_t>(argc), "Std::" + container_name);
 		awesome.EnableTimeMeasure();
-		// awesome.FordJohnson();
+		awesome.FordJohnson();
 	}
 	catch (const std::exception & e)
 	{
