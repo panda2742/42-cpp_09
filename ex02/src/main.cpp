@@ -3,17 +3,14 @@
 #include <iostream>
 #include <iterator>
 #include <fstream>
-
-#include "sort/SortableDeque.hpp"
-#include "sort/SortableList.hpp"
-#include "sort/SortableVector.hpp"
+#include <vector>
 
 #define BLUE "\e[38;2;0;0;255m"
 #define PURPLE "\e[38;2;255;0;255m"
 #define YELLOW "\e[38;2;255;255;0m"
 #define GREEN "\e[38;2;0;255;0m"
 
-template <class Ctn>
+template <template <typename T, typename Alloc> class Ctn>
 static void	__TestContainer(
 	int argc, char **argv,
 	const std::string & container_name,
@@ -80,9 +77,8 @@ int	main(int argc, char **argv)
 		return 1;
 	}
 
-	__TestContainer<SortableDeque>(argc, tokens, "Deque", BLUE);
-	// __TestContainer<ListSortable>(argc, argv, "List", YELLOW);
-	// __TestContainer<VectorSortable>(argc, argv, "Vector", PURPLE);
+	__TestContainer<std::deque>(argc, tokens, "Deque", PURPLE);
+	__TestContainer<std::vector>(argc, tokens, "Vector", BLUE);
 
 	if (allocated)
 	{

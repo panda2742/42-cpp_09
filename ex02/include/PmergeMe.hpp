@@ -2,53 +2,72 @@
 #define PMERGE_ME_HPP
 
 #include <ctime>
+#include <cstdlib>
+#include <deque>
+#include <map>
+#include <memory>
+#include <string>
+#include <errno.h>
+#include <pthread.h>
+#include "types.hpp"
 
-#include "sort/ASortable.hpp"
-#include "sort/SortableDeque.hpp"
-#include "PMMException.hpp"
-
-#define GREY "\e[38;2;100;100;100m"
 #define GREEN "\e[38;2;0;255;0m"
-#define BLUE_SILVER "\e[38;2;230;220;255m"
-#define EMERALD_GREEN "\e[38;2;80;200;120m"
-#define AMBER "\e[38;2;255;191;0m"
+#define RED "\e[38;2;255;0;0m"
 #define RESET "\e[0m"
 
 typedef struct timeval	timeval_t;
 
-template <class S = SortableDeque> class PmergeMe
+template <template <class T, class Alloc> class Ctn = std::deque>
+class PmergeMe
 {
 	public:
+		typedef std::allocator<uint64_t>		Allocator;
+		typedef Ctn<uint64_t, Allocator>		Seq;
+		typedef std::pair<uint64_t, uint64_t>	Pair;
+		typedef std::allocator<Pair>			PairAllocator;
+		typedef Ctn<Pair, PairAllocator>		PairSeq;
+		typedef std::allocator<bool>			BoolAllocator;
+		typedef Ctn<bool, BoolAllocator>		BoolSeq;
+		typedef std::map<uint64_t, Seq>			Cache;
+		typedef typename Seq::iterator			It;
+		typedef typename Seq::const_iterator	ConstIt;
+
 		PmergeMe(const char **seq, uint64_t seq_size, const std::string & container_name);
-		template <class T> PmergeMe(const PmergeMe<T> & other);
-
+		PmergeMe(const PmergeMe & other);
 		~PmergeMe(void);
-
 		PmergeMe &	operator=(const PmergeMe & other);
 
-		void	FordJohnson(void);
-		void	Display(void) const;
+		const Seq &			GetSequence(void) const;
+		const Seq &			GetCopy(void) const;
+		bool				IsTimeMeasured(void) const;
+		const std::string &	GetContainerName(void) const;
 
-		void	EnableTimeMeasure(void);
-		void	DisableTimeMeasure(void);
-		bool	IsTimeMeasureEnabled(void) const;
-		S		*GetSortable(void) const;
+		void				EnableTimeMeasure(void);
+		void				DisableTimeMeasure(void);
+
+		void				FordJohnson(void);
+		void				Display(void) const;
 
 	private:
-		S					*sortable_;
-		bool				measure_time_;
-		std::string			container_name_;
-		timeval_t			tv_init_start_;
-		timeval_t			tv_init_end_;
-		timeval_t			tv_sort_start_;
-		timeval_t			tv_sort_end_;
-		
+		Seq			sequence_;
+		Seq			copy_;
+		bool		measure_time_;
+		std::string	container_name_;
+		timeval_t	tv_init_start_;
+		timeval_t	tv_init_end_;
+		timeval_t	tv_sort_start_;
+		timeval_t	tv_sort_end_;
+
 		PmergeMe(void);
 
-		bool			IsSorted_(void) const;
 		static double	GetTimeDiff_(timeval_t & start, timeval_t & end);
+
+		void			Fill_(const char **seq, uint64_t seq_size);
+		bool			IsSorted_(void) const;
+
 };
 
-#include "PmergeMe.tpp"
+#include "PmergeMe_base.tpp"
+#include "PmergeMe_impl.tpp"
 
 #endif

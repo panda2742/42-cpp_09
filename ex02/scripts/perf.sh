@@ -84,6 +84,5 @@ echo -e "\n${BRed}- Errors Summary:${Color_Off}"
 cat .perf_err | grep "ERROR SUMMARY:" | sed 's/^==[0-9]*==\s*//' | sed 's/ERROR SUMMARY: //'
 
 echo -e "\n${BYellow}- Output:${Color_Off}"
-awk 'length < 200' .perf
-
+awk 'length < 300' .perf
 rm -rf .perf .perf_err .large
