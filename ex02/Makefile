@@ -65,10 +65,6 @@ bonus:
 
 .PHONY: clean
 clean:
-	$(RM) .perf
-	$(RM) .perf_err
-	$(RM) *.profraw
-	$(RM) .large
 	$(RM) $(BUILD_DIR)
 	$(RM) .dist_turbo/
 
@@ -97,12 +93,5 @@ vg: bonus
 	$(VG) $(VGFLAGS) ./$(NAME) "ewfwfw1" "wihfeewhf"
 	$(VG) $(VGFLAGS) ./$(NAME) 3 5 9 7 4 5
 	$(VG) $(VGFLAGS) ./$(NAME) `shuf -i 1-100000 -n 3000 | tr "\n" " "`
-
-.PHONY: boost
-boost: bonus
-	@clear
-	@echo "y\n" | ./scripts/perf.sh 3000
-	@cat .perf
-	@cat .perf_vg
 
 -include $(DEPS)

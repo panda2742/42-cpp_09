@@ -13,6 +13,7 @@ template <template <class T, class Alloc> class Ctn>
 PmergeMe<Ctn>::PmergeMe(const char **seq, uint64_t seq_size, const std::string & container_name)
 		: sequence_(), copy_(), measure_time_(false), container_name_(container_name)
 {
+	std::cout << "START|container:" << container_name_ << "|size|" << seq_size <<std::endl;
 	EnableTimeMeasure();
 	container_name_ = container_name;
 	try
@@ -32,8 +33,7 @@ PmergeMe<Ctn>::PmergeMe(const char **seq, uint64_t seq_size, const std::string &
 			double	time_res = GetTimeDiff_(tv_init_start_, tv_init_end_);
 
 			std::cout << std::fixed << std::setprecision(3);
-			std::cout << "[" << container_name_ << "] Initialization: " << time_res << "μs (~" << time_res / 1000L
-				<< "ms, ~" << time_res / 1000000L << "s)." << std::endl;
+			std::cout << "container:" << container_name_ << "timer|init|" << time_res << std::endl;
 		}
 	}
 	catch (const std::exception & e)
@@ -41,10 +41,6 @@ PmergeMe<Ctn>::PmergeMe(const char **seq, uint64_t seq_size, const std::string &
 		throw;
 	}
 }
-
-template <template <class T, class Alloc> class Ctn>
-PmergeMe<Ctn>::PmergeMe(const PmergeMe<Ctn> & other)
-		: sequence_(), copy_(), measure_time_(other.measure_time_), container_name_(other.container_name_) {}
 
 template <template <class T, class Alloc> class Ctn>
 PmergeMe<Ctn>::~PmergeMe(void) {}
@@ -74,3 +70,11 @@ PmergeMe<Ctn>::PmergeMe(void)
 {
 	throw std::runtime_error("This class cannot be instanciated without a sequence.");
 }
+
+template <template <class T, class Alloc> class Ctn>
+PmergeMe<Ctn>::PmergeMe(const PmergeMe<Ctn> & other)
+		: sequence_(), copy_(), measure_time_(other.measure_time_), container_name_(other.container_name_)
+{
+	throw std::runtime_error("This class cannot be instanciated without a sequence.");
+}
+

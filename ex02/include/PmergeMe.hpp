@@ -33,7 +33,6 @@ class PmergeMe
 		typedef typename Seq::const_iterator	ConstIt;
 
 		PmergeMe(const char **seq, uint64_t seq_size, const std::string & container_name);
-		PmergeMe(const PmergeMe & other);
 		~PmergeMe(void);
 		PmergeMe &	operator=(const PmergeMe & other);
 
@@ -58,6 +57,7 @@ class PmergeMe
 		timeval_t	tv_sort_start_;
 		timeval_t	tv_sort_end_;
 
+		PmergeMe(const PmergeMe & other);
 		PmergeMe(void);
 
 		static double	GetTimeDiff_(timeval_t & start, timeval_t & end);

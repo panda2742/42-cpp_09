@@ -21,7 +21,7 @@ static void	__TestContainer(
 			<< RESET "\n" << std::endl;
 	try
 	{
-		PmergeMe<Ctn>	awesome(const_cast<const char **>(argv), static_cast<uint64_t>(argc), "Std::" + container_name);
+		PmergeMe<Ctn>	awesome(const_cast<const char **>(argv), static_cast<uint64_t>(argc), container_name);
 		awesome.EnableTimeMeasure();
 		awesome.FordJohnson();
 	}
@@ -77,8 +77,8 @@ int	main(int argc, char **argv)
 		return 1;
 	}
 
-	__TestContainer<std::deque>(argc, tokens, "Deque", PURPLE);
-	__TestContainer<std::vector>(argc, tokens, "Vector", BLUE);
+	__TestContainer<std::deque>(argc, tokens, "deque", PURPLE);
+	__TestContainer<std::vector>(argc, tokens, "vector", BLUE);
 
 	if (allocated)
 	{
