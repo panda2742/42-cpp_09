@@ -50,9 +50,8 @@ PmergeMe<Ctn> &	PmergeMe<Ctn>::operator=(const PmergeMe<Ctn> & other)
 {
 	if (this != *other)
 	{
-		if (this->sortable_)
-			delete this->sortable_;
-
+		this->sequence_ = other.sequence_;
+		this->copy_ = other.copy_;
 		this->container_name_ = other.container_name_;
 		this->measure_time_ = other.measure_time_;
 	}
