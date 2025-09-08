@@ -1,12 +1,15 @@
+#include "Visualizer.hpp"
 #include <iostream>
-#include <cstdio>
-#include <string>
-#include <stdexcept>
-#include <array>
 
+using namespace std;
 
 int	main(void)
 {
+	Visualizer	visu;
 
+	cout << "\033[2J\033[1;1H" << flush;
+
+
+	visu.Launch();
 	return 0;
 }
