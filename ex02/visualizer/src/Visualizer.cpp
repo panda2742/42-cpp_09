@@ -1,12 +1,8 @@
 #include "Visualizer.hpp"
-#include <functional>
 #include <iostream>
-#include <string>
-#include <vector>
 
-#include <ftxui/component/captured_mouse.hpp>
+#include <ftxui/dom/elements.hpp>
 #include <ftxui/component/component.hpp>
-#include <ftxui/component/component_options.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 
 using namespace std;
@@ -14,22 +10,26 @@ using namespace ftxui;
 
 void	Visualizer::Launch(void) const
 {
-	auto	screen = ScreenInteractive::TerminalOutput();
+	auto		screen = ScreenInteractive::TerminalOutput();
+	Component	base = Container::Vertical({});
 
-	std::cout << "Welcome to the performance visualizer! What would you like to do?" << std::endl;
+	Element	document = hbox({
+		text(" CPP Module 09 ") | border,
+		text(" Performance Visualizer 📈 ") | border | flex
+	});
 
-	int						selected = 0;
-	const vector<string>	entries = {
-		"Generate a large input.",
-		"Launch the program.",
-		"Launch the program with turbo mode."
-	};
+	auto	renderer = Renderer(base, [&] {
+		return document;
+	});
 
-	MenuOption	option;
-	option.on_enter = screen.ExitLoopClosure();
-	auto		menu = Menu(&entries, &selected, option);
+	renderer |= CatchEvent([&](Event event) {
+		if (event.is_mouse() && event.mouse().button == Mouse::Button::Right)
+		{
+			screen.ExitLoopClosure()();
+			return true;
+		}
+		return false;
+	});
 
-	screen.Loop(menu);
-
-	std::cout << "Selected element: " << entries[selected] << std::endl;
+	screen.Loop(renderer);
 }
