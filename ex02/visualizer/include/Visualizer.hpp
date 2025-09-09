@@ -2,7 +2,13 @@
 
 #include <string>
 
+#include <ftxui/component/component.hpp>
+
+#define MAX_VALUE 2000000
+#define MAX_VALUE_STR "2000000"
+
 using namespace std;
+using namespace ftxui;
 
 class Visualizer
 {
@@ -17,4 +23,7 @@ class Visualizer
 		Visualizer&	operator=(Visualizer&&) = default;
 	
 		void	Launch(void) const;
+	
+	private:
+		static string	FormatNumber(long long n);
 };
