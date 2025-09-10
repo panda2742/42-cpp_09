@@ -1,6 +1,8 @@
 #include "Visualizer.hpp"
 #include <iostream>
 #include <vector>
+#include "UIStore.hpp"
+#include "ui.hpp"
 
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/component/component.hpp>
@@ -11,10 +13,8 @@ using namespace ftxui;
 
 void	Visualizer::Launch(void) const
 {
-	// Screen
 	ScreenInteractive	screen = ScreenInteractive::TerminalOutput();
 
-	// Tabs
 	int				selected_tab = 0;
 	vector<string>	tab_names = {
 		"  Generate input  ",
@@ -22,57 +22,7 @@ void	Visualizer::Launch(void) const
 		"  Start Valgrind  "
 	};
 
-	static string	output_filename;
-	Component		filename_input = Input(&output_filename, "example: .large:1000");
-
-	static uint32_t	amount_slider_value = 100000;
-	static string	amount_input_value = "";
-
-	auto	validate_and_sync_input = [&] {
-		amount_input_value.erase(
-			remove_if(
-				amount_input_value.begin(), amount_input_value.end(),
-				[](char c) { return !isdigit(c); }
-			),
-			amount_input_value.end()
-		);
-
-		if (!amount_input_value.empty())
-		{
-			try
-			{
-				amount_slider_value = stoul(amount_input_value);
-				if (amount_slider_value > MAX_VALUE)
-				{
-					amount_slider_value = MAX_VALUE;
-					amount_input_value = MAX_VALUE_STR;
-				}
-			}
-			catch(const std::exception& e)
-			{
-				amount_slider_value = 0;
-				amount_input_value = "0";
-			}
-		}
-		else
-		{
-			amount_slider_value = 0;
-			amount_input_value = "0";
-		}
-	};
-
-	Component		amount_slider = Slider("", reinterpret_cast<int *>(&amount_slider_value), 0, MAX_VALUE, 1000);
-	Component		amount_input = Input(&amount_input_value, "...");
-
-	amount_input |= CatchEvent([&](Event event) {
-		if (event == Event::Return)
-		{
-			validate_and_sync_input();
-			return true;
-		}
-		return false;
-	});
-
+	Component	filename_input = FilenameInputComp(), amount_slider = AmountSliderComp(), amount_input = AmountInputComp();
 	Component	generation_view = Container::Vertical({ filename_input, amount_slider, amount_input });
 	Component	generation_renderer = Renderer(generation_view, [&] {
 		return vbox({
@@ -85,7 +35,7 @@ void	Visualizer::Launch(void) const
 			vbox({
 				text("Amount of elements") | bold,
 				text(""),
-				text(FormatNumber(amount_slider_value)) | bold | flex | color(Color::Green),
+				text(FormatNumber(UIStore::use_generation_store.elements_amount_value.value)) | bold | flex | color(Color::Green),
 				amount_slider->Render() | flex,
 				hbox({
 					text("You can also write it here -> "),
@@ -94,7 +44,6 @@ void	Visualizer::Launch(void) const
 			}) | borderStyled(BorderStyle::EMPTY)
 		}) | border;
 	});
-
 	Component	program_renderer = Renderer([&] { return text("Content 2"); });
 	Component	valgrind_renderer = Renderer([&] { return text("Content 3"); });
 
@@ -103,7 +52,6 @@ void	Visualizer::Launch(void) const
 		generation_renderer, program_renderer, valgrind_renderer
 	}, &selected_tab);
 
-	// Header
 	Component	quit_button = Button("[ Quit ]", screen.ExitLoopClosure(), ButtonOption::Animated(Color::Red3));
 	Component	container = Container::Vertical({
 		quit_button,

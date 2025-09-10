@@ -23,7 +23,11 @@ include_directories(include)
 
 set(SOURCES
 	src/main.cpp
+	src/UIStore.cpp
 	src/Visualizer.cpp
+	src/ui/components/AmountInput.comp.cpp
+	src/ui/components/AmountSlider.comp.cpp
+	src/ui/components/FilenameInput.comp.cpp
 )
 
 add_executable(Visualizer ${SOURCES})
