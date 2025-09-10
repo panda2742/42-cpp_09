@@ -76,20 +76,23 @@ void	Visualizer::Launch(void) const
 	Component	generation_view = Container::Vertical({ filename_input, amount_slider, amount_input });
 	Component	generation_renderer = Renderer(generation_view, [&] {
 		return vbox({
-			hbox({
-				text("— Output filename: "),
+			vbox({
+				text("Output filename") | bold,
+				text(""),
 				filename_input->Render() | flex,
-			}),
-			hbox({
-				text("— Amount of values: "),
-				text(FormatNumber(amount_slider_value)) | bold,
-			}),
-			hbox({
+			}) | borderStyled(BorderStyle::EMPTY),
+			separator() | color(Color::GrayDark),
+			vbox({
+				text("Amount of elements") | bold,
+				text(""),
+				text(FormatNumber(amount_slider_value)) | bold | flex | color(Color::Green),
 				amount_slider->Render() | flex,
-				text("  write the amount -> "),
-				amount_input->Render() | bold,
-			}),
-		});
+				hbox({
+					text("You can also write it here -> "),
+					amount_input->Render() | bold,
+				}),
+			}) | borderStyled(BorderStyle::EMPTY)
+		}) | border;
 	});
 
 	Component	program_renderer = Renderer([&] { return text("Content 2"); });
