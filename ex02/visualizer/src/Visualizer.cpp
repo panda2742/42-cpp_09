@@ -10,12 +10,18 @@
 using namespace std;
 using namespace ftxui;
 
-void	Visualizer::Launch(void) const
+Visualizer::Visualizer(void): screen_(ScreenInteractive::TerminalOutput()) {}
+
+ScreenInteractive&	Visualizer::GetScreen(void)
 {
-	ScreenInteractive	screen = ScreenInteractive::TerminalOutput();
+	return screen_;
+}
 
+void	Visualizer::Launch(void)
+{
+	Component	renderer = LaunchView(*this);
 
-	screen.Loop(renderer);
+	screen_.Loop(renderer);
 }
 
 string	Visualizer::FormatNumber(long long n)

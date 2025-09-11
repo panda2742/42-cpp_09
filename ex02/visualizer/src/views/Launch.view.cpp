@@ -1,34 +1,29 @@
 #include "UI.hpp"
 #include <vector>
+#include <string>
+#include <memory>
 
 using namespace ftxui;
 
-Component	LaunchView(const Visualizer& visualizer)
+Component	LaunchView(Visualizer& visualizer)
 {
-	int				selected_tab = 0;
-	vector<string>	tab_names = {
-		"  Generate input  ",
-		"  Start program  ",
-		"  Start Valgrind  "
-	};
-
 	Component	generation_renderer = GenerationRendererView(visualizer);
-	Component	program_renderer = Renderer([&] { return text("Content 2"); });
-	Component	valgrind_renderer = Renderer([&] { return text("Content 3"); });
+	Component	program_renderer = Renderer([] { return text("Content 2"); });
+	Component	valgrind_renderer = Renderer([] { return text("Content 3"); });
 
-	Component	tab_menu = Menu(&tab_names, &selected_tab, MenuOption::HorizontalAnimated());
+	Component	tab_menu = Menu(&UIStore::use_main_view_store.tab_names.value, &UIStore::use_main_view_store.selected_tab.value, MenuOption::HorizontalAnimated());
 	Component	tab_container = Container::Tab({
 		generation_renderer, program_renderer, valgrind_renderer
-	}, &selected_tab);
+	}, &UIStore::use_main_view_store.selected_tab.value);
 
-	Component	quit_button = Button("[ Quit ]", screen.ExitLoopClosure(), ButtonOption::Animated(Color::Red3));
+	Component	quit_button = Button("[ Quit ]", [screen = &visualizer.GetScreen()] {screen->ExitLoopClosure();}, ButtonOption::Animated(Color::Red3));
 	Component	container = Container::Vertical({
 		quit_button,
 		tab_menu,
 		tab_container
 	});
 
-	Component	renderer = Renderer(container, [&] {
+	return Renderer(container, [&] {
 		return vbox({
 			hbox({
 				text(" CPP Module 09 ") | border,

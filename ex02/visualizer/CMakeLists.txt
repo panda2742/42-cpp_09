@@ -23,12 +23,13 @@ include_directories(include)
 
 set(SOURCES
 	src/main.cpp
-	src/UIStore.cpp
+	src/stores.cpp
 	src/Visualizer.cpp
 	src/components/generation/AmountInput.comp.cpp
 	src/components/generation/AmountSlider.comp.cpp
 	src/components/generation/FilenameInput.comp.cpp
 	src/views/GenerationRenderer.view.cpp
+	src/views/Launch.view.cpp
 )
 
 add_executable(Visualizer ${SOURCES})

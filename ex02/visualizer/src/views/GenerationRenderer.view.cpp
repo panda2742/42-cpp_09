@@ -2,7 +2,7 @@
 
 using namespace ftxui;
 
-Component	GenerationRendererView(const Visualizer& visualizer)
+Component	GenerationRendererView(Visualizer& visualizer)
 {
 	Component	filename_input = FilenameInputComp(),
 				amount_slider = AmountSliderComp(),
