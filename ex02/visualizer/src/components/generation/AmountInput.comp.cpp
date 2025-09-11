@@ -1,4 +1,4 @@
-#include "ui.hpp"
+#include "UI.hpp"
 
 using namespace ftxui;
 

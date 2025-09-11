@@ -1,4 +1,4 @@
-#include "UIStore.hpp"
+#include "UI.hpp"
 
 UIStore::GenerationStoreStruct	UIStore::use_generation_store = {
 	.output_filename = Store<string>(""),

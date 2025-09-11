@@ -1,8 +1,12 @@
 #pragma once
 
+#include <ftxui/component/component.hpp>
+#include <ftxui/component/screen_interactive.hpp>
+#include "Visualizer.hpp"
 #include <string>
 
 using namespace std;
+using namespace ftxui;
 
 template <class T>
 struct Store
@@ -21,3 +25,9 @@ class UIStore
 			Store<string>	elements_amount_input;
 		}	use_generation_store;
 };
+
+Component	AmountInputComp(void);
+Component	AmountSliderComp(void);
+Component	FilenameInputComp(void);
+
+Component	GenerationRendererView(const Visualizer& visualizer);

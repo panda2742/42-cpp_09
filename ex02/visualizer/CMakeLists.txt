@@ -25,9 +25,10 @@ set(SOURCES
 	src/main.cpp
 	src/UIStore.cpp
 	src/Visualizer.cpp
-	src/components/AmountInput.comp.cpp
-	src/components/AmountSlider.comp.cpp
-	src/components/FilenameInput.comp.cpp
+	src/components/generation/AmountInput.comp.cpp
+	src/components/generation/AmountSlider.comp.cpp
+	src/components/generation/FilenameInput.comp.cpp
+	src/views/GenerationRenderer.view.cpp
 )
 
 add_executable(Visualizer ${SOURCES})

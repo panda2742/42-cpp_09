@@ -22,8 +22,6 @@ class Visualizer
 		Visualizer&	operator=(const Visualizer&) = delete;
 		Visualizer&	operator=(Visualizer&&) = default;
 	
-		void	Launch(void) const;
-	
-	private:
+		void			Launch(void) const;
 		static string	FormatNumber(long long n);
 };
