@@ -63,7 +63,7 @@ void	PmergeMe<Ctn>::FordJohnson(void)
 		double	time_res = GetTimeDiff_(tv_sort_start_, tv_sort_end_);
 
 		std::cout << std::fixed << std::setprecision(3);
-			std::cout << "container:" << container_name_ << "timer|sort|" << time_res << std::endl;
+		std::cout << "container:" << container_name_ << "|time_sort:" << time_res << std::endl;
 	}
 	
 	std::cout << "END|container:" << container_name_ << std::endl;
@@ -72,8 +72,8 @@ void	PmergeMe<Ctn>::FordJohnson(void)
 template <template <class T, class Alloc> class Ctn>
 void	PmergeMe<Ctn>::Display(void) const
 {
-	std::cout << "container:" << container_name_ << "|seq|" << (IsSorted_() ? "sorted" : "not sorted");
-	std::cout << "|";
+	std::cout << "container:" << container_name_ << "|seq_state:" << (IsSorted_() ? "sorted" : "not sorted");
+	std::cout << "|seq:";
 	for (ConstIt	it = sequence_.begin(); it != sequence_.end(); it++)
 	{
 		if (it != sequence_.begin())
@@ -118,7 +118,7 @@ void	PmergeMe<Ctn>::Fill_(const char **seq, uint64_t seq_size)
 
 	if (seq_size < THREAD_THRESHOLD)
 	{
-		std::cout << "container:" << container_name_ << "|threads|init|0" << std::endl;
+		std::cout << "container:" << container_name_ << "|threads_init:0" << std::endl;
 		std::set<uint64_t>	seen;
 		for (uint64_t	i = 0; i < seq_size; i++)
 		{
@@ -153,7 +153,7 @@ void	PmergeMe<Ctn>::Fill_(const char **seq, uint64_t seq_size)
 	s_thread_args<Seq>	*args = new s_thread_args<Seq>[nthreads];
 	Seq					*locals = new Seq[nthreads];
 	
-	std::cout << "container:" << container_name_ << "|threads|init|" << nthreads << std::endl;
+	std::cout << "container:" << container_name_ << "|threads_init:" << nthreads << std::endl;
 
 	unsigned int	t = 0;
 	for (; t < nthreads; t++)

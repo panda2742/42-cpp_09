@@ -13,7 +13,7 @@ template <template <class T, class Alloc> class Ctn>
 PmergeMe<Ctn>::PmergeMe(const char **seq, uint64_t seq_size, const std::string & container_name)
 		: sequence_(), copy_(), measure_time_(false), container_name_(container_name)
 {
-	std::cout << "START|container:" << container_name_ << "|size|" << seq_size <<std::endl;
+	std::cout << "START|container:" << container_name_ << "|size:" << seq_size <<std::endl;
 	EnableTimeMeasure();
 	container_name_ = container_name;
 	try
@@ -33,7 +33,7 @@ PmergeMe<Ctn>::PmergeMe(const char **seq, uint64_t seq_size, const std::string &
 			double	time_res = GetTimeDiff_(tv_init_start_, tv_init_end_);
 
 			std::cout << std::fixed << std::setprecision(3);
-			std::cout << "container:" << container_name_ << "timer|init|" << time_res << std::endl;
+			std::cout << "container:" << container_name_ << "|time_init:" << time_res << std::endl;
 		}
 	}
 	catch (const std::exception & e)
