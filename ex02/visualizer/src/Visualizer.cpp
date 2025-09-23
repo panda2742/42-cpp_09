@@ -1,19 +1,21 @@
 #include "Visualizer.hpp"
+#include "Utils.hpp"
 
+#include <algorithm>
 #include <array>
 #include <chrono>
 #include <string>
+#include <fstream>
 #include <vector>
 #include <iostream>
 #include <cstdlib>
 #include <thread>
+#include <filesystem>
 
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/component/component.hpp"
 #include "ftxui/dom/elements.hpp"
-#include "ftxui/dom/node.hpp"
 #include "ftxui/screen/color.hpp"
-#include "ftxui/screen/screen.hpp"
 
 using namespace std;
 using namespace ftxui;
@@ -146,28 +148,139 @@ Component	Visualizer::Wrap_(const string& name, Component component)
 
 void	Visualizer::RunProgram_(void)
 {
-	map<string, string>	tasks;
-	tasks["init"] = "cd ../../ && make fclean";
-	if (options.selectCompilationFlags != 1)
-		tasks["normal_compile"] = "cd ../../ && make";
-	if (options.selectCompilationFlags > 0)
-		tasks["valgrind_compile"] = "cd ../../ && make bonus";
+	PrepareCommands_();
 
-	for (auto 	t : tasks)
+	vector<Result *>	sorted;
+	for (auto& res : results)
+		sorted.push_back(&res.second);
+	
+	sort(sorted.begin(), sorted.end(),
+		[](const Result *a, const Result *b)
+		{
+			return a->priority < b->priority;
+		});
+
+	size_t	i = 1;
+	for (auto *ptr : sorted)
 	{
-		string	tmp_filename = ".tmp_" + to_string(reinterpret_cast<unsigned long long>(&t));
-		// cout << t.second << endl;
+		if (!ptr->tmp_file.empty())
+		{
+			ptr->task += " 1> ";
+			if (ptr->tmp_file.starts_with(".tmp"))
+				ptr->task += ".visu_tmp/" + ptr->tmp_file;
+			else
+				ptr->task += ptr->tmp_file;
+			ptr->task += " 2> ";
+			if (ptr->tmp_file.starts_with(".tmp"))
+				ptr->task += ".visu_tmp/" + ptr->tmp_file + "_err";
+			else
+				ptr->task += ptr->tmp_file + "_err";
+		}
+		cout << C_MINT "[" C_PURPLE << i << C_MINT "/" C_PURPLE << sorted.size() << C_MINT "] Executing " C_RED C_BOLD << ptr->task << C_RESET << endl;
 
-		array<char, 128>	buffer;
-		string				result;
-		unique_ptr			<FILE, decltype(&pclose)>	pipe(popen(string(t.second + " &> " + tmp_filename).c_str(), "r"), pclose);
+		try
+		{
+			ExecuteCommand_(ptr);
+		}
+		catch(const std::exception& e)
+		{
+			system("rm -rf ../../.visu_tmp");
+			system("cd ../../ && make fclean > /dev/null");
+			system("clear");
+			cerr << C_RED << ptr->task << ": " << e.what() << C_RESET << endl;
+			return;
+		}
+		
+		i++;
+	}
 
-		if (!pipe)
-			continue;
-		while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) != nullptr)
-			result += buffer.data();
+	CreateMetrics_();
+}
 
-		this_thread::sleep_for(0.1s);
+void	Visualizer::ExecuteCommand_(Result* ptr)
+{
+	int		pclose_retval = 0;
+	auto	pclose_exit_value = [&](FILE *file_ptr)
+	{
+		pclose_retval = pclose(file_ptr);
+	};
+	unique_ptr<FILE, decltype(pclose_exit_value)>	pipe(popen(ptr->task.c_str(), "r"), pclose_exit_value);
+
+	if (!pipe)
+		throw runtime_error("Pipe creation error.");
+
+	array<char, 128>	buffer;
+	string				cmd_res;
+	while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) != nullptr)
+		cmd_res += buffer.data();
+
+	if (pclose_retval != 0)
+		throw runtime_error("Return code for task is error-based.");
+
+	if (ptr->task_id == TMP_DIR)
+	{
+		if (filesystem::exists("../../.visu_tmp"))
+		{
+			if (filesystem::is_directory("../../.visu_tmp"))
+				return;
+		}
+		throw runtime_error("Temporary files folder has not been created.");
+	}
+
+	if (ptr->tmp_file_err.empty() || ptr->task.find("valgrind") != string::npos)
+		return;
+
+	ifstream	err_file("../../.visu_tmp/" + ptr->tmp_file_err, ios::binary | ios::ate);
+	if (!err_file.is_open())
+		throw runtime_error("Something went wrong with error file.");
+	if (err_file.tellg() != 0)
+		throw runtime_error("The error file is actually filled with errors.");
+}
+
+void	Visualizer::PrepareCommands_(void)
+{
+	system("clear");
+	// Clean and prepare
+	results[TMP_DIR] = Result(TMP_DIR, "cd ../../ && mkdir -p .visu_tmp", 0);
+	results[TMP_DIR].tmp_file.clear();
+	results[TMP_DIR].tmp_file_err.clear();
+	results[MAKE_FCLEAN] = Result(MAKE_FCLEAN, "cd ../../ && make fclean", 1);
+
+	// Compilation
+	if (options.selectCompilationFlags != 1)
+		results[MAKE] = Result(MAKE, "cd ../../ && make", 2);
+	if (options.selectCompilationFlags > 0)
+		results[MAKE_BONUS] = Result(MAKE_BONUS, "cd ../../ && make bonus", 2);
+	
+	// Input generation
+	results[GENERATE_INPUT] = Result(GENERATE_INPUT, "cd ../../ && shuf -i 1-100000 -n 3000 | tr '\\n' ' '", 3);
+
+	// Run programs
+	if (options.selectedRunMode != 1)
+	{
+		if (results.find(MAKE) != results.end())
+			results[RUN] = Result(RUN, "cd ../../ && ./PmergeMe file:.visu_tmp/" + results[GENERATE_INPUT].tmp_file, 4);
+		if (results.find(MAKE_BONUS) != results.end())
+			results[RUN_BONUS] = Result(RUN_BONUS, "cd ../../ && ./PmergeMe_with_turbo file:.visu_tmp/" + results[GENERATE_INPUT].tmp_file, 4);
+	}
+	if (options.selectedRunMode > 0)
+	{
+		if (results.find(MAKE) != results.end())
+			results[VALGRIND_RUN] = Result(VALGRIND_RUN, "cd ../../ && valgrind " VG_FLAGS " ./PmergeMe file:.visu_tmp/" + results[GENERATE_INPUT].tmp_file, 4);
+		if (results.find(MAKE_BONUS) != results.end())
+			results[VALGRIND_RUN_BONUS] = Result(VALGRIND_RUN_BONUS, "cd ../../ && valgrind " VG_FLAGS " ./PmergeMe_with_turbo file:.visu_tmp/" + results[GENERATE_INPUT].tmp_file, 4);
 	}
 }
 
+void	Visualizer::CreateMetrics_(void)
+{
+	const string	wait_message = "Analyzing metrics...";
+	jthread	spinner([wait_message](stop_token stoken)
+		{
+			Utils::LoadingSpinner(stoken, wait_message);
+		});
+
+	sleep(10);
+
+	spinner.request_stop();
+}

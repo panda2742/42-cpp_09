@@ -23,6 +23,7 @@ include_directories(include)
 
 set(SOURCES
 	src/main.cpp
+	src/Utils.cpp
 	src/Visualizer.cpp
 )
 

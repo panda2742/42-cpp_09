@@ -5,20 +5,12 @@
 #include <fstream>
 #include <vector>
 
-#define BLUE "\e[38;2;0;0;255m"
-#define PURPLE "\e[38;2;255;0;255m"
-#define YELLOW "\e[38;2;255;255;0m"
-#define GREEN "\e[38;2;0;255;0m"
-
 template <template <typename T, typename Alloc> class Ctn>
 static void	__TestContainer(
 	int argc, char **argv,
-	const std::string & container_name,
-	const std::string & container_color
+	const std::string & container_name
 )
 {
-	std::cout << "\n" << container_color << "[  Test with " << container_name << ", " << argc << " elements  ]"
-			<< RESET "\n" << std::endl;
 	try
 	{
 		PmergeMe<Ctn>	awesome(const_cast<const char **>(argv), static_cast<uint64_t>(argc), container_name);
@@ -29,7 +21,6 @@ static void	__TestContainer(
 	{
 		std::cout << e.what() << std::endl;
 	}
-	std::cout << RESET "\n" << std::endl;
 }
 
 int	main(int argc, char **argv)
@@ -77,8 +68,8 @@ int	main(int argc, char **argv)
 		return 1;
 	}
 
-	__TestContainer<std::deque>(argc, tokens, "deque", PURPLE);
-	__TestContainer<std::vector>(argc, tokens, "vector", BLUE);
+	__TestContainer<std::deque>(argc, tokens, "deque");
+	__TestContainer<std::vector>(argc, tokens, "vector");
 
 	if (allocated)
 	{

@@ -1,4 +1,0 @@
-c++ -Wall -Wextra -Werror -MD -Wshadow -g3 --std=c++98  -c -Iinclude/ -Iinclude/ src/main.cpp -o .dist/main.o
-c++ -Wall -Wextra -Werror -MD -Wshadow -g3 --std=c++98  -c -Iinclude/ -Iinclude/ src/PmergeMe.cpp -o .dist/PmergeMe.o
-c++ -Wall -Wextra -Werror -MD -Wshadow -g3 --std=c++98  -c -Iinclude/ -Iinclude/ src/utils.cpp -o .dist/utils.o
-c++ -Wall -Wextra -Werror -MD -Wshadow -g3 --std=c++98   .dist/main.o  .dist/PmergeMe.o  .dist/utils.o -o PmergeMe
