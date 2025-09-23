@@ -101,7 +101,7 @@ void	Visualizer::Launch(void)
 	{
 		screen.Exit();
 	};
-	auto	launchButton = Button("Launch", action, ButtonOption::Animated(Color::Purple));
+	auto	launchButton = Button("LAUNCH", action, ButtonOption::Animated(Color::Purple));
 
 	auto	layout = Container::Vertical({
 		flagsRadiobox,
@@ -122,8 +122,9 @@ void	Visualizer::Launch(void)
 				input->Render(),
 				separator(),
 				treatmentRadiobox->Render(),
+				separator(),
+				launchButton->Render() | border,
 			}) | xflex | size(WIDTH, GREATER_THAN, 40) | border,
-			launchButton->Render(),
 		});
 	});
 
@@ -152,29 +153,10 @@ void	Visualizer::RunProgram_(void)
 	if (options.selectCompilationFlags > 0)
 		tasks["valgrind_compile"] = "cd ../../ && make bonus";
 
-	size_t	tasks_size = tasks.size();
-	string	complete = "";
-	float	i = 0;
-	string	reset_pos;
 	for (auto 	t : tasks)
 	{
 		string	tmp_filename = ".tmp_" + to_string(reinterpret_cast<unsigned long long>(&t));
-		complete += string("\n`") + t.first + "`: " + t.second;
-
-		auto	document = vbox({
-			paragraph(complete) | bold,
-			hbox({
-				text(to_string(static_cast<int>(i)) + "/" + to_string(tasks_size) + " "),
-				vbox({
-					gauge(i / static_cast<float>(tasks_size)) | flex,
-				}) | size(WIDTH, EQUAL, 100) | border,
-			}),
-		});
-		auto	screen = Screen(100, 3);
-		Render(screen, document);
-		cout << reset_pos;
-		screen.Print();
-		reset_pos = screen.ResetPosition();
+		// cout << t.second << endl;
 
 		array<char, 128>	buffer;
 		string				result;
@@ -186,22 +168,6 @@ void	Visualizer::RunProgram_(void)
 			result += buffer.data();
 
 		this_thread::sleep_for(0.1s);
-		++i;
 	}
-
-	auto	document = vbox({
-		paragraph(complete) | bold,
-		hbox({
-			text(to_string(static_cast<int>(i)) + "/" + to_string(tasks_size) + " "),
-			vbox({
-				gauge(i / static_cast<float>(tasks_size)) | flex,
-			}) | size(WIDTH, EQUAL, 100) | border,
-		}),
-	});
-	auto	screen = Screen(100, 3);
-	Render(screen, document);
-	cout << reset_pos;
-	screen.Print();
-	reset_pos = screen.ResetPosition();
 }
 
