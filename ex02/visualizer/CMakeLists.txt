@@ -17,9 +17,9 @@ endif()
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -MD -Wshadow -g3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -MD -Wshadow -g3 --std=c++23")
 
-add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fexperimental-library>)
+# add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fexperimental-library>)
 
 include_directories(include)
 

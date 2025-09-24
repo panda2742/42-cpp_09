@@ -1,5 +1,6 @@
 #include "Utils.hpp"
 
+#include <algorithm>
 #include <thread>
 #include <iostream>
 #include <fstream>
@@ -7,6 +8,8 @@
 #include <string>
 #include <vector>
 #include <stop_token>
+#include <ranges>
+#include <map>
 
 using namespace std;
 using namespace chrono;
@@ -36,5 +39,40 @@ namespace Utils
 			i = (i + 1) % frames.size();
 			this_thread::sleep_for(milliseconds(100));
 		}
+	}
+
+	vector<string>	Split(const string& s, const string& delimiter)
+	{
+		auto			segments = s | views::split(delimiter);
+		vector<string>	parts;
+
+		for (const auto& seg : segments)
+			parts.emplace_back(seg.begin(), seg.end());
+
+		return parts;
+	}
+
+	string	GetLineProperty(const string& key, const string& line_fragment)
+	{
+		vector<string>	values = Split(line_fragment, ":");
+
+		if (values.size() == 2 && values.at(0) == key)
+			return values.at(1);
+
+		throw runtime_error("Line format is corrupted, '" + key + "' key does not exist.");
+	}
+
+	vector<string>	GetLineKeys(const string& line)
+	{
+		vector<string>	values = Split(line, "|");
+		auto			splitted = values | views::transform(
+			[](const string& s)
+			{
+				return Split(s, ":")[0];
+			}
+		);
+		vector<string>	keys(splitted.begin(), splitted.end());
+
+		return keys;
 	}
 }

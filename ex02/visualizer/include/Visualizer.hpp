@@ -2,6 +2,7 @@
 
 #include <map>
 #include <string>
+#include <ostream>
 
 #include "ftxui/component/screen_interactive.hpp"
 
@@ -13,80 +14,69 @@
 using namespace std;
 using namespace ftxui;
 
+namespace Visu
+{
+	typedef enum TaskID
+	{
+		TMP_DIR,
+		MAKE_FCLEAN,
+		MAKE,
+		MAKE_BONUS,
+		RUN,
+		RUN_BONUS,
+		VALGRIND_RUN,
+		VALGRIND_RUN_BONUS,
+		SAVE_OUTPUT,
+		GENERATE_INPUT,
+		CLEAR
+	}	TaskID_t;
+
+	typedef struct Options
+	{
+		int		selectedRunMode;
+		int		selectCompilationFlags;
+		int		selectedTreatment;
+		string	amountOfElements;
+
+		Options(void);
+	}	Options_t;
+
+	typedef struct Task
+	{
+		TaskID_t		task_id;
+		string			task;
+		string			tmp_file;
+		string			tmp_file_err;
+		unsigned char	priority;
+
+		Task(void);
+		Task(TaskID_t task_id_, const string& task_name, unsigned char priority_val);
+	}	Task_t;
+
+	typedef struct Result
+	{
+		string							container_name;
+		bool							valgrind_enabled;
+		bool							flags_enabled;
+		bool							is_sorted_before;
+		bool							is_sorted_after;
+		unsigned int					sequence_size;
+		unsigned short int				init_threads_count;
+		unsigned short int				sort_threads_count;
+		unsigned long long				init_time;
+		unsigned long long				sort_time;
+		array<unsigned long long, 3>	heap_summary;
+		array<unsigned long long, 2>	errors_summary;
+
+		Result(const string& container_name_);
+	}	Result_t;
+}
+
+ostream&	operator<<(ostream& os, Visu::Result_t res);
+
 class Visualizer
 {
 	public:
-		typedef enum TaskID
-		{
-			TMP_DIR,
-			MAKE_FCLEAN,
-			MAKE,
-			MAKE_BONUS,
-			RUN,
-			RUN_BONUS,
-			VALGRIND_RUN,
-			VALGRIND_RUN_BONUS,
-			SAVE_OUTPUT,
-			GENERATE_INPUT,
-			CLEAR
-		}	TaskID_t;
-
-		typedef struct Options
-		{
-			int		selectedRunMode;
-			int		selectCompilationFlags;
-			int		selectedTreatment;
-			string	amountOfElements;
-
-			Options(void)
-			{
-				selectedRunMode = 0;
-				selectCompilationFlags = 0;
-				selectedTreatment = 1;
-				amountOfElements = "3000";
-			}
-		}	Options_t;
-
-		typedef struct Result
-		{
-			TaskID_t		task_id;
-			string			task;
-			string			tmp_file;
-			string			tmp_file_err;
-			unsigned char	priority;
-
-			string			container_name;
-			double			init_time;
-			short int		init_threads;
-			double			sort_time;
-			short int		sort_threads;
-			string			seq;
-			bool			is_sorted;
-
-			Result(void)
-			{
-				task_id = CLEAR,
-				task = "true";
-				priority = 0;
-				container_name = "deque";
-				init_time = 0;
-				init_threads = 0;
-				sort_time = 0;
-				sort_threads = 0;
-				seq = "";
-				is_sorted = false;
-			}
-			Result(TaskID_t task_id_, const string& task_name, unsigned char priority_val)
-			{
-				*this = Result();
-				this->task_id = task_id_;
-				this->task = task_name;
-				this->priority = priority_val;
-
-				this->tmp_file = ".tmp_" + to_string(rand());
-				this->tmp_file_err = this->tmp_file + "_err";
-			}
-		}	Result_t;
 
 		Visualizer(void);
 		~Visualizer(void) = default;
@@ -100,9 +90,11 @@ class Visualizer
 		Visualizer(Visualizer&&) = delete;
 		Visualizer& operator=(Visualizer&&) = delete;
 
-		Options_t				options;
-		map<TaskID_t, Result_t>	results;
-		int						amount;
+		Visu::Options_t						options;
+		map<Visu::TaskID_t, Visu::Task_t>	tasks;
+		vector<Visu::Task *>				sorted_tasks;
+		map<string, vector<Visu::Result_t>>	results;
+		int									amount;
 
 		/**
 		 * Display a component nicely with a title on the left.
@@ -123,9 +115,21 @@ class Visualizer
 		 * Execute a command and throw an error if something bad happens.
 		 * @param ptr The object containing the information of the command (task).
 		 */
-		void		ExecuteCommand_(Result* ptr);
+		void		ExecuteCommand_(Visu::Task *ptr);
 		/**
 		 * Analyzes each output of each command and generates some metrics about it.
 		 */
 		void		CreateMetrics_(void);
+		/**
+		 * Treat a temporary file and reads its content. Can throw an error if something wrong occurs.
+		 */
+		void		TreatTask_(Visu::Task *ptr);
+		/**
+		 * Clear the visualizer temporary files and clean the working shell.
+		 */
+		void		CleanTraces_(void) const;
+		/**
+		 * Display the metrics result into a new page with beautiful components.
+		 */
+		void		DisplayMetrics_(void) const;
 };

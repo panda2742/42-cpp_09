@@ -2,6 +2,7 @@
 
 #include <thread>
 #include <stop_token>
+#include <vector>
 
 #define C_WHITE "\e[38;2;255;255;255m"
 #define C_RED "\e[38;2;255;0;0m"
@@ -27,5 +28,8 @@ using namespace std;
 
 namespace Utils
 {
-	void	LoadingSpinner(stop_token stoken, const string& message);
+	void			LoadingSpinner(stop_token stoken, const string& message);
+	vector<string>	Split(const string& s, const string& delimiter);
+	string			GetLineProperty(const string& key, const string& line_fragment);
+	vector<string>	GetLineKeys(const string& line);
 }

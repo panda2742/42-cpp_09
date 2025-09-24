@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <thread>
 #include <filesystem>
+#include <ranges>
 #include <unistd.h>
 
 #include "ftxui/component/screen_interactive.hpp"
@@ -21,9 +22,66 @@
 using namespace std;
 using namespace ftxui;
 
+Visu::Task::Task(void)
+{
+	task_id = CLEAR,
+	task = "true";
+	priority = 0;
+}
+
+Visu::Task::Task(TaskID_t task_id_, const string& task_name, unsigned char priority_val)
+{
+	*this = Task();
+	this->task_id = task_id_;
+	this->task = task_name;
+	this->priority = priority_val;
+
+	this->tmp_file = ".tmp_" + to_string(rand());
+	this->tmp_file_err = this->tmp_file + "_err";
+}
+
+Visu::Options::Options(void)
+{
+	selectedRunMode = 0;
+	selectCompilationFlags = 0;
+	selectedTreatment = 1;
+	amountOfElements = "3000";
+}
+
+Visu::Result::Result(const string& container_name_)
+{
+	this->container_name = container_name_;
+	this->valgrind_enabled = false;
+	this->flags_enabled = false;
+	this->is_sorted_before = false;
+	this->is_sorted_after = true;
+	this->sequence_size = 0;
+	this->init_threads_count = 0;
+	this->sort_threads_count = 0;
+	this->init_time = 0;
+	this->sort_time = 0;
+	this->heap_summary = {0, 0, 0};
+	this->errors_summary  = {0, 0};
+}
+
+ostream&	operator<<(ostream& os, Visu::Result_t res)
+{
+	os << C_BOLD "Metrics for: " C_BLUE << res.container_name << C_RESET << "\n"
+		<< "\tValgrind: " << (res.valgrind_enabled ? C_GREEN "activated" : C_RED "desactivated") << C_RESET << "\n"
+		<< "\tOptimization flags: " << (res.flags_enabled ? C_GREEN "activated" : C_RED "desactivated") << C_RESET << "\n"
+		<< "\tFlow: " << (res.is_sorted_before ? C_GREEN "sorted" : C_RED "not sorted") << C_RESET << " -> " << (res.is_sorted_after ? C_GREEN "sorted" : C_RED "not sorted") << C_RESET << "\n"
+		<< "\tSequence size: " C_PURPLE << res.sequence_size << C_RESET "\n"
+		<< "\tThreads used at init: " C_PURPLE << res.init_threads_count << C_RESET "\n"
+		<< "\tThreads used at sorting: " C_PURPLE << res.sort_threads_count << C_RESET "\n"
+		<< "\tInit time: " C_PURPLE << res.init_time << "µs" C_RESET "\n"
+		<< "\tSorting time: " C_PURPLE << res.sort_time << "µs" C_RESET "\n\n";
+
+	return os;
+}
+
 Visualizer::Visualizer(void): amount(3000)
 {
-	options = Options_t();
+	options = Visu::Options_t();
 }
 
 void	Visualizer::Launch(void)
@@ -149,20 +207,25 @@ Component	Visualizer::Wrap_(const string& name, Component component)
 
 void	Visualizer::RunProgram_(void)
 {
+	const string	wait_message = "Running...";
+	jthread	spinner([wait_message](stop_token stoken)
+		{
+			Utils::LoadingSpinner(stoken, wait_message);
+		});
+
 	PrepareCommands_();
 
-	vector<Result *>	sorted;
-	for (auto& res : results)
-		sorted.push_back(&res.second);
-	
-	sort(sorted.begin(), sorted.end(),
-		[](const Result *a, const Result *b)
+	for (auto& task : tasks)
+		sorted_tasks.push_back(&task.second);
+
+	sort(sorted_tasks.begin(), sorted_tasks.end(),
+		[](const Visu::Task *a, const Visu::Task *b)
 		{
 			return a->priority < b->priority;
 		});
 
 	size_t	i = 1;
-	for (auto *ptr : sorted)
+	for (auto *ptr : sorted_tasks)
 	{
 		if (!ptr->tmp_file.empty())
 		{
@@ -177,7 +240,7 @@ void	Visualizer::RunProgram_(void)
 			else
 				ptr->task += ptr->tmp_file + "_err";
 		}
-		cout << C_MINT "[" C_PURPLE << i << C_MINT "/" C_PURPLE << sorted.size() << C_MINT "] Executing " C_PINK C_BOLD << ptr->task << C_RESET << endl;
+		cout << C_CLEARLN C_MINT "[" C_PURPLE << i << C_MINT "/" C_PURPLE << sorted_tasks.size() << C_MINT "] Executing " C_PINK C_BOLD << ptr->task << C_RESET << endl;
 
 		try
 		{
@@ -185,20 +248,19 @@ void	Visualizer::RunProgram_(void)
 		}
 		catch(const std::exception& e)
 		{
-			system("rm -rf ../../.visu_tmp");
-			system("cd ../../ && make fclean > /dev/null");
-			system("clear");
-			cerr << C_RED << ptr->task << ": " << e.what() << C_RESET << endl;
+			CleanTraces_();
+			cerr << C_CLEARLN C_RED << ptr->task << ": " << e.what() << C_RESET << endl;
 			return;
 		}
 		
 		i++;
 	}
 
+	spinner.request_stop();
 	CreateMetrics_();
 }
 
-void	Visualizer::ExecuteCommand_(Result* ptr)
+void	Visualizer::ExecuteCommand_(Visu::Task *ptr)
 {
 	int		pclose_retval = 0;
 	auto	pclose_exit_value = [&](FILE *file_ptr)
@@ -218,7 +280,7 @@ void	Visualizer::ExecuteCommand_(Result* ptr)
 	if (pclose_retval != 0)
 		throw runtime_error("Return code for task is error-based.");
 
-	if (ptr->task_id == TMP_DIR)
+	if (ptr->task_id == Visu::TMP_DIR)
 	{
 		if (filesystem::exists("../../.visu_tmp"))
 		{
@@ -242,46 +304,203 @@ void	Visualizer::PrepareCommands_(void)
 {
 	system("clear");
 	// Clean and prepare
-	results[TMP_DIR] = Result(TMP_DIR, "cd ../../ && mkdir -p .visu_tmp", 0);
-	results[TMP_DIR].tmp_file.clear();
-	results[TMP_DIR].tmp_file_err.clear();
-	results[MAKE_FCLEAN] = Result(MAKE_FCLEAN, "cd ../../ && make fclean", 1);
+	tasks[Visu::TMP_DIR] = Visu::Task(Visu::TMP_DIR, "cd ../../ && mkdir -p .visu_tmp", 0);
+	tasks[Visu::TMP_DIR].tmp_file.clear();
+	tasks[Visu::TMP_DIR].tmp_file_err.clear();
+	tasks[Visu::MAKE_FCLEAN] = Visu::Task(Visu::MAKE_FCLEAN, "cd ../../ && make fclean", 1);
 
 	// Compilation
 	if (options.selectCompilationFlags != 1)
-		results[MAKE] = Result(MAKE, "cd ../../ && make", 2);
+		tasks[Visu::MAKE] = Visu::Task(Visu::MAKE, "cd ../../ && make", 2);
 	if (options.selectCompilationFlags > 0)
-		results[MAKE_BONUS] = Result(MAKE_BONUS, "cd ../../ && make bonus", 2);
+		tasks[Visu::MAKE_BONUS] = Visu::Task(Visu::MAKE_BONUS, "cd ../../ && make bonus", 2);
 	
 	// Input generation
-	results[GENERATE_INPUT] = Result(GENERATE_INPUT, "cd ../../ && shuf -i 1-100000 -n 3000 | tr '\\n' ' '", 3);
+	tasks[Visu::GENERATE_INPUT] = Visu::Task(
+		Visu::GENERATE_INPUT,
+		"cd ../../ && shuf -i 1-"
+		+ to_string(stoul(options.amountOfElements) * 10) + " -n "
+		+ options.amountOfElements + " | tr '\\n' ' '", 3
+	);
 
 	// Run programs
 	if (options.selectedRunMode != 1)
 	{
-		if (results.find(MAKE) != results.end())
-			results[RUN] = Result(RUN, "cd ../../ && ./PmergeMe file:.visu_tmp/" + results[GENERATE_INPUT].tmp_file, 4);
-		if (results.find(MAKE_BONUS) != results.end())
-			results[RUN_BONUS] = Result(RUN_BONUS, "cd ../../ && ./PmergeMe_with_turbo file:.visu_tmp/" + results[GENERATE_INPUT].tmp_file, 4);
+		if (tasks.find(Visu::MAKE) != tasks.end())
+			tasks[Visu::RUN] = Visu::Task(Visu::RUN, "cd ../../ && ./PmergeMe file:.visu_tmp/" + tasks[Visu::GENERATE_INPUT].tmp_file, 4);
+		if (tasks.find(Visu::MAKE_BONUS) != tasks.end())
+			tasks[Visu::RUN_BONUS] = Visu::Task(Visu::RUN_BONUS, "cd ../../ && ./PmergeMe_with_turbo file:.visu_tmp/" + tasks[Visu::GENERATE_INPUT].tmp_file, 4);
 	}
 	if (options.selectedRunMode > 0)
 	{
-		if (results.find(MAKE) != results.end())
-			results[VALGRIND_RUN] = Result(VALGRIND_RUN, "cd ../../ && valgrind " VG_FLAGS " ./PmergeMe file:.visu_tmp/" + results[GENERATE_INPUT].tmp_file, 4);
-		if (results.find(MAKE_BONUS) != results.end())
-			results[VALGRIND_RUN_BONUS] = Result(VALGRIND_RUN_BONUS, "cd ../../ && valgrind " VG_FLAGS " ./PmergeMe_with_turbo file:.visu_tmp/" + results[GENERATE_INPUT].tmp_file, 4);
+		if (tasks.find(Visu::MAKE) != tasks.end())
+			tasks[Visu::VALGRIND_RUN] = Visu::Task(Visu::VALGRIND_RUN, "cd ../../ && valgrind " VG_FLAGS " ./PmergeMe file:.visu_tmp/" + tasks[Visu::GENERATE_INPUT].tmp_file, 4);
+		if (tasks.find(Visu::MAKE_BONUS) != tasks.end())
+			tasks[Visu::VALGRIND_RUN_BONUS] = Visu::Task(Visu::VALGRIND_RUN_BONUS, "cd ../../ && valgrind " VG_FLAGS " ./PmergeMe_with_turbo file:.visu_tmp/" + tasks[Visu::GENERATE_INPUT].tmp_file, 4);
 	}
 }
 
 void	Visualizer::CreateMetrics_(void)
 {
-	const string	wait_message = "Analyzing metrics...";
+	const string	wait_message = "Analyzing...";
 	jthread	spinner([wait_message](stop_token stoken)
 		{
 			Utils::LoadingSpinner(stoken, wait_message);
 		});
 
-	sleep(10);
+	for (auto* ptr : sorted_tasks)
+	{
+		if (ptr->task_id < Visu::RUN || ptr->task_id > Visu::VALGRIND_RUN_BONUS)
+			continue;
 
+		try
+		{
+			TreatTask_(ptr);
+		}
+		catch(const std::exception& e)
+		{
+			CleanTraces_();
+			cerr << C_CLEARLN C_RED << "Task analyze error: " << e.what() << C_RESET << endl;
+			return;
+		}
+	}
+
+	for (const auto& res_metrics : results)
+	{
+		cout << "Container " << res_metrics.first << " has " << res_metrics.second.size() << " metrics." << endl;
+		for (const auto& res_container_elt : res_metrics.second)
+			cout << res_container_elt;
+	}
+
+	CleanTraces_();
 	spinner.request_stop();
+	DisplayMetrics_();
+}
+
+void	Visualizer::TreatTask_(Visu::Task *ptr)
+{
+	ifstream		task_tmp("../../.visu_tmp/" + ptr->tmp_file);
+
+	if (!task_tmp.is_open())
+		throw runtime_error(ptr->tmp_file + " is not openable.");
+	
+	string						line;
+	optional<Visu::Result_t>	res;
+	while (getline(task_tmp, line))
+	{
+		vector<string>	parts = Utils::Split(line, "|");
+
+		if (parts.size() == 2 && parts.at(0) == "END")
+		{
+			string	container_name = Utils::GetLineProperty("container", parts.at(1));
+
+			if (res.has_value() && container_name == res.value().container_name)
+			{
+				results[res.value().container_name].push_back(res.value());
+				res.reset();
+			}
+			continue;
+		}
+		if (parts.size() == 3 && parts.at(0) == "START")
+		{
+			const string	container_name = Utils::GetLineProperty("container", parts.at(1));
+			const string	seq_size = Utils::GetLineProperty("size", parts.at(2));
+			res = Visu::Result_t(container_name);
+			res.value().sequence_size = stoul(seq_size);
+			res.value().flags_enabled = ptr->task_id == Visu::RUN_BONUS || ptr->task_id == Visu::VALGRIND_RUN_BONUS;
+			res.value().valgrind_enabled = ptr->task_id == Visu::VALGRIND_RUN || ptr->task_id == Visu::VALGRIND_RUN_BONUS;
+			continue;
+		}
+
+		string	container_name = Utils::GetLineProperty("container", parts.at(0));
+		if (!res.has_value() || parts.size() < 2 || container_name != res.value().container_name)
+			continue;
+		
+		vector<string>	keys = Utils::GetLineKeys(line);
+		for (const string& key : keys)
+		{
+			if (key == "threads_init")
+			{
+				string	value = Utils::GetLineProperty("threads_init", parts.at(1));
+				res.value().init_threads_count = stoul(value);
+			}
+			else if (key == "seq_state")
+			{
+				string	value = Utils::GetLineProperty("seq_state", parts.at(1));
+				if (res.value().init_time == 0)
+					res.value().is_sorted_before = value == "sorted";
+				else
+					res.value().is_sorted_after= value == "sorted";
+			}
+			else if (key == "time_init")
+			{
+				string	value = Utils::GetLineProperty("time_init", parts.at(1));
+				res.value().init_time = stoul(value);
+			}
+			else if (key == "threads_sort")
+			{
+				string	value = Utils::GetLineProperty("threads_sort", parts.at(1));
+				res.value().sort_threads_count = stoul(value);
+			}
+			else if (key == "time_sort")
+			{
+				string	value = Utils::GetLineProperty("time_sort", parts.at(1));
+				res.value().sort_time = stoul(value);
+			}
+		}
+	}
+
+	if (task_tmp.fail() && !task_tmp.eof())
+		throw runtime_error("The file " + ptr->tmp_file + " unexpectedly failed/closed.");
+	if (task_tmp.bad())
+		throw runtime_error("The file " + ptr->tmp_file + " or the disk is corrupted.");
+}
+
+void	Visualizer::CleanTraces_(void) const
+{
+	system("rm -rf ../../.visu_tmp");
+	system("cd ../../ && make fclean > /dev/null");
+	system("clear");
+}
+
+void	Visualizer::DisplayMetrics_(void) const
+{
+	auto	screen = ScreenInteractive::Fullscreen();
+
+	int	container_selected = 0;
+	vector<string> container_entries;
+	transform(results.begin(), results.end(), back_inserter(container_entries),
+		[](const auto& pair) { return pair.first; }
+	);
+
+	auto	menu_component = Menu(&container_entries, &container_selected);
+	auto	menu_renderer = Renderer(menu_component, [&]
+	{
+		return window(text(" Containers ") | color(Color::BlueViolet) | bold, menu_component->Render()  | color(Color::SeaGreen1));
+	});
+	
+	auto	metrics_renderer = Renderer([&]
+	{
+		if (!container_entries.empty())
+		{
+			string	metrics = container_entries[container_selected];
+			return window(text(" Metrics for " + metrics + " ") | color(Color::BlueViolet) | bold, text(metrics));
+		}
+		return window(text(" No container selected "), text("No data"));
+	});
+
+	auto	layout = Container::Horizontal({
+		menu_renderer,
+		metrics_renderer
+	});
+	
+	auto	main_renderer = Renderer(layout, [&]
+	{
+		return hbox({
+			menu_renderer->Render() | flex_shrink,
+			metrics_renderer->Render() | flex
+		});
+	});
+
+	screen.Loop(main_renderer);
 }
