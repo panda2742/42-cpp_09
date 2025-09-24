@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <thread>
 #include <filesystem>
+#include <unistd.h>
 
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/component/component.hpp"
@@ -176,7 +177,7 @@ void	Visualizer::RunProgram_(void)
 			else
 				ptr->task += ptr->tmp_file + "_err";
 		}
-		cout << C_MINT "[" C_PURPLE << i << C_MINT "/" C_PURPLE << sorted.size() << C_MINT "] Executing " C_RED C_BOLD << ptr->task << C_RESET << endl;
+		cout << C_MINT "[" C_PURPLE << i << C_MINT "/" C_PURPLE << sorted.size() << C_MINT "] Executing " C_PINK C_BOLD << ptr->task << C_RESET << endl;
 
 		try
 		{

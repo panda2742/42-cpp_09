@@ -6,6 +6,7 @@
 #include <ios>
 #include <string>
 #include <vector>
+#include <stop_token>
 
 using namespace std;
 using namespace chrono;
