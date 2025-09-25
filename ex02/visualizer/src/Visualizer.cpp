@@ -483,10 +483,82 @@ void	Visualizer::DisplayMetrics_(void) const
 	{
 		if (!container_entries.empty())
 		{
-			string	metrics = container_entries[container_selected];
-			return window(text(" Metrics for " + metrics + " ") | color(Color::BlueViolet) | bold, text(metrics));
+			string					container_name = container_entries[container_selected];
+			vector<Visu::Result_t>	res = (*results.find(container_name)).second;
+			
+			vector<Element> test_list;
+			
+			for (size_t i = 0; i < res.size(); ++i)
+			{
+				const auto& result = res[i];
+				
+				// Flow simplifié
+				auto flow_arrow = hbox({
+					result.is_sorted_before ? 
+						text("SORTED") | color(Color::Green) : 
+						text("NOT SORTED") | color(Color::Red),
+					text(" → "),
+					result.is_sorted_after ? 
+						text("SORTED") | color(Color::Green) : 
+						text("NOT SORTED") | color(Color::Red)
+				});
+				
+				// Carte test simplifiée
+				auto test_card = vbox({
+					// Header
+					hbox({
+						text("Test " + to_string(i + 1)) | bold | color(Color::Yellow),
+						text(" | " + to_string(result.sequence_size) + " elements") | color(Color::Cyan)
+					}),
+					
+					// Flow
+					flow_arrow | center,
+					
+					// Métriques principales
+					hbox({
+						vbox({
+							text("Time:") | color(Color::GrayLight),
+							text(to_string(result.sort_time) + "µs") | bold | color(Color::White)
+						}) | flex,
+						
+						vbox({
+							text("Threads:") | color(Color::GrayLight),
+							text(to_string(result.sort_threads_count)) | bold | color(Color::White)
+						}) | flex,
+						
+						vbox({
+							text("Flags:") | color(Color::GrayLight),
+							text(result.flags_enabled ? "ON" : "OFF") | 
+								color(result.flags_enabled ? Color::Green : Color::Red) | bold
+						}) | flex
+					}) | center
+				}) | borderLight | color(Color::Blue);
+				
+				test_list.push_back(test_card);
+				
+				// Espace entre les tests
+				if (i < res.size() - 1)
+					test_list.push_back(separatorEmpty());
+			}
+			
+			// Si aucun résultat
+			if (test_list.empty())
+			{
+				test_list.push_back(
+					text("No tests for " + container_name) | center | color(Color::Yellow) | bold
+				);
+			}
+			
+			return window(
+				text(" " + container_name + " (" + to_string(res.size()) + " tests) ") | 
+				color(Color::BlueViolet) | bold, 
+				vbox(std::move(test_list)) | yframe | vscroll_indicator | frame
+			);
 		}
-		return window(text(" No container selected "), text("No data"));
+		return window(
+			text(" No container selected "), 
+			text("Select a container from the menu") | center | color(Color::Yellow)
+		);
 	});
 
 	auto	layout = Container::Horizontal({
