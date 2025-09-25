@@ -22,24 +22,6 @@
 using namespace std;
 using namespace ftxui;
 
-Visu::Task::Task(void)
-{
-	task_id = CLEAR,
-	task = "true";
-	priority = 0;
-}
-
-Visu::Task::Task(TaskID_t task_id_, const string& task_name, unsigned char priority_val)
-{
-	*this = Task();
-	this->task_id = task_id_;
-	this->task = task_name;
-	this->priority = priority_val;
-
-	this->tmp_file = ".tmp_" + to_string(rand());
-	this->tmp_file_err = this->tmp_file + "_err";
-}
-
 Visu::Options::Options(void)
 {
 	selectedRunMode = 0;
@@ -162,7 +144,7 @@ void	Visualizer::Launch(void)
 	{
 		screen.Exit();
 	};
-	auto	launchButton = Button("LAUNCH", action, ButtonOption::Animated(Color::Purple));
+	auto	launchButton = Button("LAUNCH", action, ButtonOption::Animated(Color::Orange1));
 
 	auto	layout = Container::Vertical({
 		flagsRadiobox,
@@ -192,17 +174,6 @@ void	Visualizer::Launch(void)
 	screen.Loop(layoutComponent);
 	cout << "\033[2J\033[1;1H" << flush;
 	RunProgram_();
-}
-
-Component	Visualizer::Wrap_(const string& name, Component component)
-{
-	return Renderer(component, [name, component] {
-		return hbox({
-			text(name) | size(WIDTH, EQUAL, 25) | color(Color::SeaGreen1),
-			separator(),
-			component->Render() | xflex,
-		}) | xflex;
-	});
 }
 
 void	Visualizer::RunProgram_(void)
@@ -240,7 +211,7 @@ void	Visualizer::RunProgram_(void)
 			else
 				ptr->task += ptr->tmp_file + "_err";
 		}
-		cout << C_CLEARLN C_MINT "[" C_PURPLE << i << C_MINT "/" C_PURPLE << sorted_tasks.size() << C_MINT "] Executing " C_PINK C_BOLD << ptr->task << C_RESET << endl;
+		cout << C_CLEARLN C_ORANGE "[" C_PURPLE << i << C_ORANGE "/" C_PURPLE << sorted_tasks.size() << C_ORANGE "] Executing " C_PINK C_BOLD << ptr->task << C_RESET << endl;
 
 		try
 		{
@@ -476,9 +447,8 @@ void	Visualizer::DisplayMetrics_(void) const
 	auto	menu_component = Menu(&container_entries, &container_selected);
 	auto	menu_renderer = Renderer(menu_component, [&]
 	{
-		return window(text(" Containers ") | color(Color::BlueViolet) | bold, menu_component->Render()  | color(Color::SeaGreen1));
+		return window(text(" Containers ") | color(Color::BlueViolet) | bold, menu_component->Render()  | color(Color::Orange1));
 	});
-	
 	auto	metrics_renderer = Renderer([&]
 	{
 		if (!container_entries.empty())
@@ -486,78 +456,116 @@ void	Visualizer::DisplayMetrics_(void) const
 			string					container_name = container_entries[container_selected];
 			vector<Visu::Result_t>	res = (*results.find(container_name)).second;
 			
-			vector<Element> test_list;
+			// Create a dynamic layout based on the number of results
+			vector<Element> result_elements;
 			
 			for (size_t i = 0; i < res.size(); ++i)
 			{
 				const auto& result = res[i];
+
+				auto before_sort_status = result.is_sorted_before ? 
+					text("Sorted") | color(Color::Green) | bold : 
+					text("Not sorted") | color(Color::Red) | bold;
+					
+				auto after_sort_status = result.is_sorted_after ? 
+					text("Sorted") | color(Color::Green) | bold : 
+					text("Not sorted") | color(Color::Red) | bold;
 				
-				// Flow simplifié
-				auto flow_arrow = hbox({
-					result.is_sorted_before ? 
-						text("SORTED") | color(Color::Green) : 
-						text("NOT SORTED") | color(Color::Red),
-					text(" → "),
-					result.is_sorted_after ? 
-						text("SORTED") | color(Color::Green) : 
-						text("NOT SORTED") | color(Color::Red)
-				});
-				
-				// Carte test simplifiée
-				auto test_card = vbox({
-					// Header
+				// Build the result card
+				auto result_card = vbox({
+					// Header with test configuration
 					hbox({
-						text("Test " + to_string(i + 1)) | bold | color(Color::Yellow),
-						text(" | " + to_string(result.sequence_size) + " elements") | color(Color::Cyan)
+						text("Test #" + to_string(i + 1)) | bold | color(Color::Orange1),
+						text(" | "),
+						text("⏺︎ Valgrind  ") | color(result.valgrind_enabled ? Color::Green : Color::Red),
+						text("⏺︎ Flags") | color(result.flags_enabled ? Color::Green : Color::Red),
 					}),
 					
-					// Flow
-					flow_arrow | center,
-					
-					// Métriques principales
+					separator(),
+
+					hbox({
+						text("Flow: "),
+						before_sort_status,
+						text(" → "),
+						after_sort_status
+					}),
+
 					hbox({
 						vbox({
-							text("Time:") | color(Color::GrayLight),
-							text(to_string(result.sort_time) + "µs") | bold | color(Color::White)
+							vbox({
+								text("Sequence Size") | color(Color::BlueViolet),
+								text(Utils::FormatNumber(result.sequence_size)) | color(Color::White)
+							}) | flex,
+
+							vbox({
+								text("Init Time") | color(Color::BlueViolet),
+								text(Utils::FormatNumber(result.init_time) + "µs") | color(Color::White)
+							}) | flex,
 						}) | flex,
-						
 						vbox({
-							text("Threads:") | color(Color::GrayLight),
-							text(to_string(result.sort_threads_count)) | bold | color(Color::White)
+							vbox({
+								text("Init Threads") | color(Color::BlueViolet),
+								text(Utils::FormatNumber(result.init_threads_count)) | color(Color::White)
+							}) | flex,
+
+							vbox({
+								text("Sort Time") | color(Color::BlueViolet),
+								text(Utils::FormatNumber(result.sort_time) + "µs") | color(Color::White)
+							}) | flex,
 						}) | flex,
-						
 						vbox({
-							text("Flags:") | color(Color::GrayLight),
-							text(result.flags_enabled ? "ON" : "OFF") | 
-								color(result.flags_enabled ? Color::Green : Color::Red) | bold
-						}) | flex
-					}) | center
-				}) | borderLight | color(Color::Blue);
-				
-				test_list.push_back(test_card);
-				
-				// Espace entre les tests
-				if (i < res.size() - 1)
-					test_list.push_back(separatorEmpty());
+							vbox({
+								text("Sort Threads") | color(Color::BlueViolet),
+								text(Utils::FormatNumber(result.sort_threads_count)) | color(Color::White)
+							}) | flex,
+
+							vbox({
+								text("Total Time") | color(Color::BlueViolet),
+								text(Utils::FormatNumber(result.init_time + result.sort_time) + "µs") | color(Color::DarkOrange) | bold
+							}) | flex
+						}) | flex,
+					}) | border | color(Color::GrayLight) | flex
+				}) | borderRounded | color(Color::BlueViolet) | flex;
+
+				result_elements.push_back(result_card);
 			}
-			
-			// Si aucun résultat
-			if (test_list.empty())
+
+			vector<Element> rows;
+			for (size_t i = 0; i < result_elements.size(); i += 2)
 			{
-				test_list.push_back(
-					text("No tests for " + container_name) | center | color(Color::Yellow) | bold
+				if (i + 1 < result_elements.size())
+				{
+					rows.push_back(hbox({
+						result_elements[i] | flex,
+						result_elements[i + 1] | flex
+					}));
+				}
+				else
+				{
+					rows.push_back(hbox({
+						result_elements[i] | flex,
+						text("") | flex
+					}));
+				}
+			}
+
+			if (rows.empty())
+			{
+				rows.push_back(
+					text("No metrics available for " + container_name) | 
+					color(Color::Orange1) | bold | center
 				);
 			}
 			
 			return window(
-				text(" " + container_name + " (" + to_string(res.size()) + " tests) ") | 
+				text(" Metrics for " + container_name + " (" + to_string(res.size()) + " tests) ") | 
 				color(Color::BlueViolet) | bold, 
-				vbox(std::move(test_list)) | yframe | vscroll_indicator | frame
+				vbox(std::move(rows))
 			);
 		}
 		return window(
 			text(" No container selected "), 
-			text("Select a container from the menu") | center | color(Color::Yellow)
+			text("Please select a container from the left menu") | center | color(Color::Orange1)
 		);
 	});
 

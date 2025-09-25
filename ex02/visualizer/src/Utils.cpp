@@ -35,7 +35,7 @@ namespace Utils
 		size_t	i = 0;
 		while (!stoken.stop_requested())
 		{
-			cout << C_CLEARLN C_MINT "[ " << colors[i] << frames[i] << C_MINT " ] " << message << C_RESET << flush;
+			cout << C_CLEARLN C_ORANGE "[ " << colors[i] << frames[i] << C_ORANGE " ] " << message << C_RESET << flush;
 			i = (i + 1) % frames.size();
 			this_thread::sleep_for(milliseconds(100));
 		}

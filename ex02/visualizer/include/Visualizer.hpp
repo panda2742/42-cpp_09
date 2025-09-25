@@ -16,20 +16,6 @@ using namespace ftxui;
 
 namespace Visu
 {
-	typedef enum TaskID
-	{
-		TMP_DIR,
-		MAKE_FCLEAN,
-		MAKE,
-		MAKE_BONUS,
-		RUN,
-		RUN_BONUS,
-		VALGRIND_RUN,
-		VALGRIND_RUN_BONUS,
-		SAVE_OUTPUT,
-		GENERATE_INPUT,
-		CLEAR
-	}	TaskID_t;
 
 	typedef struct Options
 	{
@@ -40,18 +26,6 @@ namespace Visu
 
 		Options(void);
 	}	Options_t;
-
-	typedef struct Task
-	{
-		TaskID_t		task_id;
-		string			task;
-		string			tmp_file;
-		string			tmp_file_err;
-		unsigned char	priority;
-
-		Task(void);
-		Task(TaskID_t task_id_, const string& task_name, unsigned char priority_val);
-	}	Task_t;
 
 	typedef struct Result
 	{
@@ -96,13 +70,6 @@ class Visualizer
 		map<string, vector<Visu::Result_t>>	results;
 		int									amount;
 
-		/**
-		 * Display a component nicely with a title on the left.
-		 * @param name The name of the component (title name).
-		 * @param component The component to display on the right.
-		 * @returns A freshly created component with the title on the left.
-		 */
-		Component	Wrap_(const string& name, Component component);
 		/**
 		 * Launch the program based on the options and display the result.
 		 */

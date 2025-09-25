@@ -32,4 +32,8 @@ namespace Utils
 	vector<string>	Split(const string& s, const string& delimiter);
 	string			GetLineProperty(const string& key, const string& line_fragment);
 	vector<string>	GetLineKeys(const string& line);
+	template <typename T>
+	string			FormatNumber(const T& n);
 }
+
+#include "Utils.tpp"
