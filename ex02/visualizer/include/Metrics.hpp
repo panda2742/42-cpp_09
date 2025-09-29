@@ -4,6 +4,6 @@ namespace visual
 {
 	class Metrics
 	{
-
+		public:
 	};
 }

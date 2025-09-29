@@ -26,9 +26,9 @@ namespace visual
 		Task(TaskID);
 		~Task(void) = default;
 		Task(const Task&) = default;
-		Task(Task&&) = default;
+		Task(Task&&) = delete;
 		Task&	operator=(const Task&) = default;
-		Task&	operator=(Task&&) = default;
+		Task&	operator=(Task&&) = delete;
 
 	private:
 		unsigned char	priority_;

@@ -1,13 +1,14 @@
 #include "Utils.hpp"
 
-#include <string>
+#include <string> // string
 
-using namespace std;
+namespace utils
+{
 
 template <typename T>
-string	Utils::FormatNumber(const T& n)
+std::string	FormatNumber(const T& n)
 {
-	string	str = to_string(n),
+	std::string	str = to_string(n),
 			result;
 
 	size_t	count = 0;
@@ -20,4 +21,6 @@ string	Utils::FormatNumber(const T& n)
 	}
 	
 	return result;
+}
+
 }

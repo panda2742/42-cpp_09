@@ -22,45 +22,6 @@
 using namespace std;
 using namespace ftxui;
 
-Visu::Options::Options(void)
-{
-	selectedRunMode = 0;
-	selectCompilationFlags = 0;
-	selectedTreatment = 1;
-	amountOfElements = "3000";
-}
-
-Visu::Result::Result(const string& container_name_)
-{
-	this->container_name = container_name_;
-	this->valgrind_enabled = false;
-	this->flags_enabled = false;
-	this->is_sorted_before = false;
-	this->is_sorted_after = true;
-	this->sequence_size = 0;
-	this->init_threads_count = 0;
-	this->sort_threads_count = 0;
-	this->init_time = 0;
-	this->sort_time = 0;
-	this->heap_summary = {0, 0, 0};
-	this->errors_summary  = {0, 0};
-}
-
-ostream&	operator<<(ostream& os, Visu::Result_t res)
-{
-	os << C_BOLD "Metrics for: " C_BLUE << res.container_name << C_RESET << "\n"
-		<< "\tValgrind: " << (res.valgrind_enabled ? C_GREEN "activated" : C_RED "desactivated") << C_RESET << "\n"
-		<< "\tOptimization flags: " << (res.flags_enabled ? C_GREEN "activated" : C_RED "desactivated") << C_RESET << "\n"
-		<< "\tFlow: " << (res.is_sorted_before ? C_GREEN "sorted" : C_RED "not sorted") << C_RESET << " -> " << (res.is_sorted_after ? C_GREEN "sorted" : C_RED "not sorted") << C_RESET << "\n"
-		<< "\tSequence size: " C_PURPLE << res.sequence_size << C_RESET "\n"
-		<< "\tThreads used at init: " C_PURPLE << res.init_threads_count << C_RESET "\n"
-		<< "\tThreads used at sorting: " C_PURPLE << res.sort_threads_count << C_RESET "\n"
-		<< "\tInit time: " C_PURPLE << res.init_time << "µs" C_RESET "\n"
-		<< "\tSorting time: " C_PURPLE << res.sort_time << "µs" C_RESET "\n\n";
-
-	return os;
-}
-
 Visualizer::Visualizer(void): amount(3000)
 {
 	options = Visu::Options_t();

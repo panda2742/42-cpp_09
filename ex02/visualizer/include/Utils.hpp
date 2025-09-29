@@ -1,8 +1,8 @@
 #pragma once
 
-#include <thread>
-#include <stop_token>
-#include <vector>
+#include <thread> // thread
+#include <stop_token> // stop_token
+#include <vector> // vector
 
 #define C_WHITE "\e[38;2;255;255;255m"
 #define C_RED "\e[38;2;255;0;0m"
@@ -24,16 +24,19 @@
 #define C_CLEARLN "\033[2K\r"
 #define C_BG_GRAY "\033[48;5;240m"
 
-using namespace std;
+#define MAX_VALUE 10000000
+#define MAX_VALUE_STR "10000000"
+#define VG_FLAGS "--leak-check=full --show-leak-kinds=all --track-origins=yes --show-mismatched-frees=yes --track-fds=yes --trace-children=yes"
 
-namespace Utils
+namespace utils
 {
-	void			LoadingSpinner(stop_token stoken, const string& message);
-	vector<string>	Split(const string& s, const string& delimiter);
-	string			GetLineProperty(const string& key, const string& line_fragment);
-	vector<string>	GetLineKeys(const string& line);
+	void						LoadingSpinner(std::stop_token stoken, const std::string& message);
+	std::vector<std::string>	Split(const std::string& s, const std::string& delimiter);
+	std::string					GetLineProperty(const std::string& key, const std::string& line_fragment);
+	std::vector<std::string>	GetLineKeys(const std::string& line);
 	template <typename T>
-	string			FormatNumber(const T& n);
+	std::string					FormatNumber(const T& n);
+	void						CleanTraces(void);
 }
 
 #include "Utils.tpp"

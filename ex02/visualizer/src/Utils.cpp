@@ -11,12 +11,9 @@
 #include <ranges>
 #include <map>
 
-using namespace std;
-using namespace chrono;
-
-namespace Utils
+namespace utils
 {
-	void	LoadingSpinner(stop_token stoken, const string& message)
+	void	LoadingSpinner(std::stop_token stoken, const string& message)
 	{
 		const vector<string>	frames = {"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"};
 		const vector<string>	colors = {
@@ -75,4 +72,6 @@ namespace Utils
 
 		return keys;
 	}
+
+
 }

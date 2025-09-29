@@ -4,6 +4,7 @@
 #include "Visualizer.hpp" // Visualizer
 #include <map> // map
 #include <string> // string
+#include <vector> // vector
 
 namespace visual
 {
@@ -13,12 +14,13 @@ namespace visual
 		TaskManager(const Visualizer&);
 		~TaskManager(void) = default;
 		TaskManager(const TaskManager&) = default;
-		TaskManager(TaskManager&&) = default;
+		TaskManager(TaskManager&&) = delete;
 		TaskManager&	operator=(const TaskManager&) = default;
-		TaskManager&	operator=(TaskManager&&) = default;
+		TaskManager&	operator=(TaskManager&&) = delete;
 
 	private:
-		const Visualizer&		invoker_;
-		std::map<TaskID, Task>	tasks_;
+		const Visualizer&										invoker_;
+		std::map<TaskID, Task>									tasks_;
+		std::vector<decltype(TaskManager::tasks_)::iterator>	order_;
 	};
 }
