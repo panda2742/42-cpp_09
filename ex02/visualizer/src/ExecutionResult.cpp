@@ -19,4 +19,64 @@ ExecutionResult::ExecutionResult(const std::string& container_name_)
 	this->errors_summary = {0, 0};
 }
 
+const std::string&	ExecutionResult::GetContainerName(void) const
+{
+	return container_name;
+}
+
+bool	ExecutionResult::IsValgrindEnabled(void) const
+{
+	return valgrind_enabled;
+}
+
+bool	ExecutionResult::AreFlagsEnabled(void) const
+{
+	return flags_enabled;
+}
+
+bool	ExecutionResult::IsSortedBefore(void) const
+{
+	return is_sorted_before;
+}
+
+bool	ExecutionResult::IsSortedAfter(void) const
+{
+	return is_sorted_after;
+}
+
+unsigned int	ExecutionResult::GetSequenceSize(void) const
+{
+	return sequence_size;
+}
+
+unsigned short int	ExecutionResult::GetInitThreadsCount(void) const
+{
+	return init_threads_count;
+}
+
+unsigned short int	ExecutionResult::GetSortThreadsCount(void) const
+{
+	return sort_threads_count;
+}
+
+unsigned long long	ExecutionResult::GetInitTime(void) const
+{
+	return init_time;
+}
+
+unsigned long long	ExecutionResult::GetSortTime(void) const
+{
+	return sort_time;
+}
+
+std::array<unsigned long long, 3>&	ExecutionResult::GetHeapSummary(void)
+{
+	return heap_summary;
+}
+
+std::array<unsigned long long, 2>&	ExecutionResult::GetErrorsSummary(void)
+{
+	return errors_summary;
+}
+
 }

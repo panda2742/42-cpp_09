@@ -15,7 +15,6 @@ namespace visual
 		RunBonus,
 		ValgrindRun,
 		ValgrindRunBonus,
-		SaveOutput,
 		GenerateInput,
 		Clear
 	};
@@ -23,12 +22,26 @@ namespace visual
 	class Task
 	{
 	public:
-		Task(TaskID);
+		Task(TaskID, std::string, unsigned char);
 		~Task(void) = default;
 		Task(const Task&) = default;
-		Task(Task&&) = delete;
+		Task(Task&&) = default;
 		Task&	operator=(const Task&) = default;
-		Task&	operator=(Task&&) = delete;
+		Task&	operator=(Task&&) = default;
+
+		unsigned char		GetPriority(void) const;
+		const std::string&	GetTask(void) const;
+		const std::string&	GetTmpFile(void) const;
+		const std::string&	GetTmpFileErr(void) const;
+		TaskID				GetTaskID(void) const;
+
+		void				SetPriority(unsigned char);
+		void				SetTask(const std::string&);
+		void				SetTmpFile(const std::string&);
+		void				SetTmpFileErr(const std::string&);
+		void				SetTaskID(TaskID);
+
+		void	Execute(void) const;
 
 	private:
 		unsigned char	priority_;

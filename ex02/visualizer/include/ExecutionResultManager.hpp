@@ -11,14 +11,18 @@ namespace visual
 	class ExecutionResultManager
 	{
 	public:
-		ExecutionResultManager(const Visualizer);
+		ExecutionResultManager(Visualizer&);
 		~ExecutionResultManager(void) = default;
 		ExecutionResultManager(const ExecutionResultManager&) = default;
-		ExecutionResultManager(ExecutionResultManager&&) = delete;
+		ExecutionResultManager(ExecutionResultManager&&) = default;
 		ExecutionResultManager&	operator=(const ExecutionResultManager&) = default;
-		ExecutionResultManager&	operator=(ExecutionResultManager&&) = delete;
+		ExecutionResultManager&	operator=(ExecutionResultManager&&) = default;
+
+		std::map<std::string, std::vector<ExecutionResult>>&	GetResults(void);
+		void													GenerateResults(TaskManager&);
 	
 	private:
-		std::map<std::string, std::vector<ExecutionResult>>	results;
+		std::map<std::string, std::vector<ExecutionResult>>	results_;
+		Visualizer&											invoker_;
 	};
 }
