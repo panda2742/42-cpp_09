@@ -19,7 +19,7 @@ namespace visual
 		InterfaceManager(const InterfaceManager&) = default;
 		InterfaceManager(InterfaceManager&&) = default;
 
-		ftxui::Component	InitLayout(VisualizerOptions&);
-		ftxui::Component	MetricsLayout(ExecutionResultManager&);
+		void	InitLayout(VisualizerOptions&);
+		void	MetricsLayout(ExecutionResultManager&);
 	};
 }

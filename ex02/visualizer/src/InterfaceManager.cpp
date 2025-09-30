@@ -1,11 +1,10 @@
-// Component, Renderer, hbox, text, size, WIDTH, EQUAL, color, Color, separator, xflex
 #include "ftxui/component/component.hpp"
-#include "InterfaceManager.hpp" // InterfaceManager
-#include <string> // string
-#include "Utils.hpp" // MAX_VALUE
-#include <vector> // vector
-#include "ExecutionResult.hpp" // vector
-#include "ExecutionResultManager.hpp" // vector
+#include "InterfaceManager.hpp"
+#include <string>
+#include "Utils.hpp"
+#include <vector>
+#include "ExecutionResult.hpp"
+#include "ExecutionResultManager.hpp"
 
 namespace visual
 {
@@ -23,7 +22,7 @@ Component	InterfaceManager::Wrap(const std::string& title, Component component)
 	});
 }
 
-Component	InterfaceManager::InitLayout(VisualizerOptions& options)
+void	InterfaceManager::InitLayout(VisualizerOptions& options)
 {
 	auto	screen = ScreenInteractive::Fullscreen();
 
@@ -120,11 +119,9 @@ Component	InterfaceManager::InitLayout(VisualizerOptions& options)
 	});
 
 	screen.Loop(layoutComponent);
-
-	return layoutComponent;
 }
 
-Component	InterfaceManager::MetricsLayout(ExecutionResultManager& execution_result_manager)
+void	InterfaceManager::MetricsLayout(ExecutionResultManager& execution_result_manager)
 {
 	auto	screen = ScreenInteractive::Fullscreen();
 
@@ -146,39 +143,53 @@ Component	InterfaceManager::MetricsLayout(ExecutionResultManager& execution_resu
 		{
 			std::string						container_name = container_entries[container_selected];
 			std::vector<ExecutionResult>	res = (*results.find(container_name)).second;
-			
-			// Create a dynamic layout based on the number of results
+
 			std::vector<Element> result_elements;
-			
+
 			for (size_t i = 0; i < res.size(); ++i)
 			{
 				const auto& result = res[i];
 
-				auto before_sort_status = result.IsSortedBefore() ? 
-					text("Sorted") | color(Color::Green) | bold : 
+				auto	before_sort_status = result.IsSortedBefore() ?
+					text("Sorted") | color(Color::Green) | bold :
 					text("Not sorted") | color(Color::Red) | bold;
-					
-				auto after_sort_status = result.IsSortedAfter() ? 
-					text("Sorted") | color(Color::Green) | bold : 
+
+				auto	after_sort_status = result.IsSortedAfter() ?
+					text("Sorted") | color(Color::Green) | bold :
 					text("Not sorted") | color(Color::Red) | bold;
-				
-				// Build the result card
+
+				auto	errors_summary = result.GetErrorsSummary()[0] > 0 ?
+					text(utils::FormatNumber(result.GetErrorsSummary()[0])) | color(Color::Red) | bold :
+					text("0") | color(Color::Green) | bold ;
+
+				auto	context_summary = result.GetErrorsSummary()[0] > 0 ?
+					text(utils::FormatNumber(result.GetErrorsSummary()[1])) | color(Color::Red) | bold :
+					text("0") | color(Color::Green) | bold ;
+
 				auto result_card = vbox({
-					// Header with test configuration
 					hbox({
 						text("Test #" + std::to_string(i + 1)) | bold | color(Color::Orange1),
 						text(" | "),
 						text("⏺︎ Valgrind  ") | color(result.IsValgrindEnabled() ? Color::Green : Color::Red),
 						text("⏺︎ Flags") | color(result.AreFlagsEnabled() ? Color::Green : Color::Red),
 					}),
-					
+
 					separator(),
 
 					hbox({
-						text("Flow: "),
-						before_sort_status,
-						text(" → "),
-						after_sort_status
+						hbox({
+							text("Flow: "),
+							before_sort_status,
+							text(" → ") | color(Color::White),
+							after_sort_status,
+						}) | flex,
+						hbox({
+							text("Errors: "),
+							errors_summary,
+							text(" in ") | color(Color::White),
+							context_summary,
+							text(" contexts."),
+						}) | flex
 					}),
 
 					hbox({
@@ -215,7 +226,25 @@ Component	InterfaceManager::MetricsLayout(ExecutionResultManager& execution_resu
 								text(utils::FormatNumber(result.GetInitTime() + result.GetSortTime()) + "µs") | color(Color::DarkOrange) | bold
 							}) | flex
 						}) | flex,
-					}) | border | color(Color::GrayLight) | flex
+					}) | border | color(Color::GrayLight) | flex,
+
+					hbox({
+						vbox({
+							text("Allocations") | color(Color::BlueViolet),
+							text("Frees") | color(Color::BlueViolet),
+							text("Allocated bytes") | color(Color::BlueViolet),
+						}) | flex,
+						vbox({
+							text(utils::FormatNumber(result.GetHeapSummary()[0])) | color(Color::DarkOrange),
+							text(utils::FormatNumber(result.GetHeapSummary()[1])) | color(Color::DarkOrange),
+							text(utils::FormatNumber(result.GetHeapSummary()[2]) + " bytes") | color(Color::White)
+						}) | flex,
+						vbox({
+							text("                    "),
+							text("                    "),
+							text("                    "),
+						}) | flex,
+					}) | border | color(Color::GrayLight) | flex,
 				}) | borderRounded | color(Color::BlueViolet) | flex;
 
 				result_elements.push_back(result_card);
@@ -243,19 +272,19 @@ Component	InterfaceManager::MetricsLayout(ExecutionResultManager& execution_resu
 			if (rows.empty())
 			{
 				rows.push_back(
-					text("No metrics available for " + container_name) | 
+					text("No metrics available for " + container_name) |
 					color(Color::Orange1) | bold | center
 				);
 			}
-			
+
 			return window(
-				text(" Metrics for " + container_name + " (" + std::to_string(res.size()) + " tests) ") | 
-				color(Color::BlueViolet) | bold, 
+				text(" Metrics for " + container_name + " (" + std::to_string(res.size()) + " tests) ") |
+				color(Color::BlueViolet) | bold,
 				vbox(std::move(rows))
 			);
 		}
 		return window(
-			text(" No container selected "), 
+			text(" No container selected "),
 			text("Please select a container from the left menu") | center | color(Color::Orange1)
 		);
 	});
@@ -264,7 +293,7 @@ Component	InterfaceManager::MetricsLayout(ExecutionResultManager& execution_resu
 		menu_renderer,
 		metrics_renderer
 	});
-	
+
 	auto	main_renderer = Renderer(layout, [&]
 	{
 		return hbox({
@@ -274,8 +303,6 @@ Component	InterfaceManager::MetricsLayout(ExecutionResultManager& execution_resu
 	});
 
 	screen.Loop(main_renderer);
-
-	return main_renderer;
 }
 
 }

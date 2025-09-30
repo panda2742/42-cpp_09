@@ -22,7 +22,7 @@ void	TaskManager::PrepareTasks(VisualizerOptions& options)
 		tasks_.emplace(TaskID::Make, Task(TaskID::Make, "cd ../../ && make", 2));
 	if (options.select_compilation_flags > 0)
 		tasks_.emplace(TaskID::MakeBonus, Task(TaskID::MakeBonus, "cd ../../ && make bonus", 2));
-	
+
 	// Input generation
 	tasks_.emplace(TaskID::GenerateInput, Task(
 		TaskID::GenerateInput,
@@ -97,7 +97,7 @@ void	TaskManager::RunTasks(void)
 			std::cerr << C_CLEARLN C_RED << ptr->GetTask() << ": " << e.what() << C_RESET << std::endl;
 			return;
 		}
-		
+
 		i++;
 	}
 }

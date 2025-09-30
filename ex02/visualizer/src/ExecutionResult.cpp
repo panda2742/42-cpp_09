@@ -1,5 +1,7 @@
-#include "ExecutionResult.hpp" // ExecutionResult
+#include "ExecutionResult.hpp"
 #include "Task.hpp"
+#include <string>
+#include <array>
 
 namespace visual
 {
@@ -13,7 +15,7 @@ ExecutionResult::ExecutionResult(const std::string& container_name)
 	this->is_sorted_after_ = false;
 	this->sequence_size_ = 3000;
 	this->init_threads_count_ = 0;
-	this->init_threads_count_ = 0;
+	this->sort_threads_count_ = 0;
 	this->init_time_ = 0;
 	this->sort_time_ = 0;
 	this->heap_summary_ = {0, 0, 0};
@@ -70,14 +72,24 @@ unsigned long long	ExecutionResult::GetSortTime(void) const
 	return sort_time_;
 }
 
-std::array<unsigned long long, 3>&	ExecutionResult::GetHeapSummary(void)
+const std::array<unsigned long long, 3>&	ExecutionResult::GetHeapSummary(void) const
 {
 	return heap_summary_;
 }
 
-std::array<unsigned long long, 2>&	ExecutionResult::GetErrorsSummary(void)
+const std::array<unsigned long long, 2>&	ExecutionResult::GetErrorsSummary(void) const
 {
 	return errors_summary_;
+}
+
+unsigned long long	*ExecutionResult::GetHeapSummaryPtr(unsigned char index)
+{
+	return &heap_summary_[index % 3];
+}
+
+unsigned long long	*ExecutionResult::GetErrorsSummaryPtr(unsigned char index)
+{
+	return &errors_summary_[index % 2];
 }
 
 void	ExecutionResult::SetContainerName(const std::string& container_name)
@@ -137,7 +149,7 @@ void	ExecutionResult::SetHeapSummary(unsigned char index, unsigned long long val
 
 void	ExecutionResult::SetErrorsSummary(unsigned char index, unsigned long long value)
 {
-	errors_summary_[index % 3] = value;
+	errors_summary_[index % 2] = value;
 }
 
 

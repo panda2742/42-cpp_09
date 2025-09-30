@@ -1,6 +1,6 @@
-#include "ExecutionResultManager.hpp" // ExecutionResultManager
-#include "Visualizer.hpp" // Visualizer
-#include "Utils.hpp" // Utils
+#include "ExecutionResultManager.hpp"
+#include "Visualizer.hpp"
+#include "Utils.hpp"
 #include <iostream>
 #include <fstream>
 
@@ -22,7 +22,7 @@ void	ExecutionResultManager::GenerateResults(TaskManager& task_manager)
 
 	for (auto* ptr : task_manager.GetSortedTasks())
 	{
-		if (ptr->GetTaskID() < TaskID::Run || ptr->GetTaskID() > TaskID::ValgrindRun)
+		if (ptr->GetTaskID() < TaskID::Run || ptr->GetTaskID() > TaskID::ValgrindRunBonus)
 			continue;
 
 		try
@@ -37,7 +37,6 @@ void	ExecutionResultManager::GenerateResults(TaskManager& task_manager)
 		}
 	}
 
-	utils::CleanTraces();
 	spinner.request_stop();
 }
 
@@ -47,7 +46,7 @@ void	ExecutionResultManager::AnalyzeTask(Task& task)
 
 	if (!task_tmp.is_open())
 		throw std::runtime_error(task.GetTmpFile() + " is not openable.");
-	
+
 	std::string						line;
 	std::optional<ExecutionResult>	res;
 	while (getline(task_tmp, line))
@@ -60,6 +59,8 @@ void	ExecutionResultManager::AnalyzeTask(Task& task)
 
 			if (res.has_value() && container_name == res.value().GetContainerName())
 			{
+				if (res.value().IsValgrindEnabled())
+					AnalyzeTaskValgrind(task, res.value());
 				results_[res.value().GetContainerName()].push_back(res.value());
 				res.reset();
 			}
@@ -79,7 +80,7 @@ void	ExecutionResultManager::AnalyzeTask(Task& task)
 		std::string	container_name = utils::GetLineProperty("container", parts.at(0));
 		if (!res.has_value() || parts.size() < 2 || container_name != res.value().GetContainerName())
 			continue;
-		
+
 		std::vector<std::string>	keys = utils::GetLineKeys(line);
 		for (const std::string& key : keys)
 		{
@@ -118,6 +119,40 @@ void	ExecutionResultManager::AnalyzeTask(Task& task)
 		throw std::runtime_error("The file " + task.GetTmpFile() + " unexpectedly failed/closed.");
 	if (task_tmp.bad())
 		throw std::runtime_error("The file " + task.GetTmpFile() + " or the disk is corrupted.");
+}
+
+void	ExecutionResultManager::AnalyzeTaskValgrind(Task& task, ExecutionResult& res)
+{
+	std::ifstream	task_tmp_err("../../.visu_tmp/" + task.GetTmpFileErr());
+
+	if (!task_tmp_err.is_open())
+		throw std::runtime_error(task.GetTmpFileErr() + " is not openable.");
+
+	std::string	line;
+	while (getline(task_tmp_err, line))
+	{
+		if (line.find("total heap usage:") != std::string::npos)
+		{
+			std::string	second_part = utils::Split(line, ":")[1];
+			second_part.erase(std::remove(second_part.begin(), second_part.end(), ','), second_part.end());
+
+			std::sscanf(second_part.c_str(), " %lld allocs %lld frees %lld bytes allocated",
+				res.GetHeapSummaryPtr(0), res.GetHeapSummaryPtr(1), res.GetHeapSummaryPtr(2));
+		}
+		else if (line.find("ERROR SUMMARY:") != std::string::npos)
+		{
+			std::string	second_part = utils::Split(line, ":")[1];
+			second_part.erase(std::remove(second_part.begin(), second_part.end(), ','), second_part.end());
+
+			std::sscanf(second_part.c_str(), " %lld errors from %lld contexts",
+				res.GetErrorsSummaryPtr(0), res.GetErrorsSummaryPtr(1));
+		}
+	}
+
+	if (task_tmp_err.fail() && !task_tmp_err.eof())
+		throw std::runtime_error("The file " + task.GetTmpFileErr() + " unexpectedly failed/closed.");
+	if (task_tmp_err.bad())
+		throw std::runtime_error("The file " + task.GetTmpFileErr() + " or the disk is corrupted.");
 }
 
 }

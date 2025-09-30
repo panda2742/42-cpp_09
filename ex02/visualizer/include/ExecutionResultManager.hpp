@@ -23,6 +23,7 @@ namespace visual
 		std::map<std::string, std::vector<ExecutionResult>>&	GetResults(void);
 		void													GenerateResults(TaskManager&);
 		void													AnalyzeTask(Task&);
+		void													AnalyzeTaskValgrind(Task&, ExecutionResult& res);
 
 	private:
 		std::map<std::string, std::vector<ExecutionResult>>	results_;

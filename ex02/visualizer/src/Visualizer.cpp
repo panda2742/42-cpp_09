@@ -2,18 +2,8 @@
 #include "VisualizerOptions.hpp"
 #include "Utils.hpp"
 
-#include <algorithm>
-#include <array>
-#include <chrono>
-#include <string>
-#include <fstream>
-#include <vector>
 #include <iostream>
-#include <cstdlib>
-#include <thread>
-#include <filesystem>
-#include <ranges>
-#include <unistd.h>
+#include <string>
 
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/component/component.hpp"
@@ -26,7 +16,7 @@ void	Visualizer::Launch(void)
 	visual::InterfaceManager		interface_manager;
 	visual::TaskManager				task_manager;
 
-	auto	layout = interface_manager.InitLayout(options_);
+	interface_manager.InitLayout(options_);
 
 	std::cout << "\033[2J\033[1;1H" << std::flush;
 
@@ -41,5 +31,6 @@ void	Visualizer::Launch(void)
 	spinner.request_stop();
 	execution_result_manager.GenerateResults(task_manager);
 
-	layout = interface_manager.MetricsLayout(execution_result_manager);
+	utils::CleanTraces();
+	interface_manager.MetricsLayout(execution_result_manager);
 }

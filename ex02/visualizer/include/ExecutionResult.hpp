@@ -16,18 +16,21 @@ namespace visual
 		ExecutionResult&	operator=(const ExecutionResult&) = default;
 		ExecutionResult&	operator=(ExecutionResult&&) = default;
 
-		const std::string&					GetContainerName(void) const;
-		bool								IsValgrindEnabled(void) const;
-		bool								AreFlagsEnabled(void) const;
-		bool								IsSortedBefore(void) const;
-		bool								IsSortedAfter(void) const;
-		unsigned int						GetSequenceSize(void) const;
-		unsigned short int					GetInitThreadsCount(void) const;
-		unsigned short int					GetSortThreadsCount(void) const;
-		unsigned long long					GetInitTime(void) const;
-		unsigned long long					GetSortTime(void) const;
-		std::array<unsigned long long, 3>&	GetHeapSummary(void);
-		std::array<unsigned long long, 2>&	GetErrorsSummary(void);
+		const std::string&							GetContainerName(void) const;
+		bool										IsValgrindEnabled(void) const;
+		bool										AreFlagsEnabled(void) const;
+		bool										IsSortedBefore(void) const;
+		bool										IsSortedAfter(void) const;
+		unsigned int								GetSequenceSize(void) const;
+		unsigned short int							GetInitThreadsCount(void) const;
+		unsigned short int							GetSortThreadsCount(void) const;
+		unsigned long long							GetInitTime(void) const;
+		unsigned long long							GetSortTime(void) const;
+		const std::array<unsigned long long, 3>&	GetHeapSummary(void) const;
+		const std::array<unsigned long long, 2>&	GetErrorsSummary(void) const;
+
+		unsigned long long							*GetHeapSummaryPtr(unsigned char);
+		unsigned long long							*GetErrorsSummaryPtr(unsigned char);
 
 		void	SetContainerName(const std::string&);
 		void	SetValgrindEnabled(bool);
