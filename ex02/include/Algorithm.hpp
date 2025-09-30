@@ -10,13 +10,22 @@
 
 static pthread_mutex_t	g_jac_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-template <class Ctn> struct s_thread_args
+template <class Ctn> struct s_thread_fillchunk_args
 {
 	const char		**seq;
 	unsigned int	start;
 	unsigned int	end;
 	Ctn				*out;
 	bool			error;
+};
+
+template <class Seq, class PairSeq> struct s_thread_pairs_args
+{
+	const PairSeq	*pairs;
+	PairSeq			*primary_pairs;
+	Seq				*seq_to_insert;
+	unsigned int	start;
+	unsigned int	end;
 };
 
 template <class P>
@@ -40,6 +49,7 @@ class Algorithm
 		static Seq		Recursion(PairSeq & pairs, bool is_odd, uint64_t isolated_element);
 		static Seq &	Sort(Seq & sequence);
 		static void		*T_FillChunk(void *void_args);
+		static void		T_Pairs(void *void_args);
 
 	private:
 		Algorithm(void);
@@ -64,6 +74,8 @@ class Algorithm
 
 		static void		*T_FillChunkImpl_(void *void_args, std::random_access_iterator_tag);
 		static void		*T_FillChunkImpl_(void *void_args, std::bidirectional_iterator_tag);
+		static void		*T_PairsImpl_(void *void_args, std::random_access_iterator_tag);
+		static void		*T_PairsImpl_(void *void_args, std::bidirectional_iterator_tag);
 };
 
 #include "Algorithm_base.tpp"

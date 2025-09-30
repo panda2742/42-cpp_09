@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iterator>
 #include <fstream>
+#include <list>
 #include <vector>
 
 template <template <typename T, typename Alloc> class Ctn>
@@ -70,6 +71,7 @@ int	main(int argc, char **argv)
 
 	__TestContainer<std::deque>(argc, tokens, "deque");
 	__TestContainer<std::vector>(argc, tokens, "vector");
+	__TestContainer<std::list>(argc, tokens, "list");
 
 	if (allocated)
 	{

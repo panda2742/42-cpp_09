@@ -35,7 +35,22 @@ typename Algorithm<P>::Seq	Algorithm<P>::RecursionImpl_(PairSeq & pairs, bool is
 }
 
 template <class P>
+typename Algorithm<P>::Seq &	Algorithm<P>::SortImpl_(Seq & sequence, std::bidirectional_iterator_tag)
+{
+	return sequence;
+}
+
+template <class P>
 void	*Algorithm<P>::T_FillChunkImpl_(void *void_args, std::bidirectional_iterator_tag)
 {
 	(void)void_args;
+	return NULL;
 }
+
+template <class P>
+void	*Algorithm<P>::T_PairsImpl_(void *void_args, std::bidirectional_iterator_tag)
+{
+	(void)void_args;
+	return NULL;
+}
+

@@ -65,7 +65,7 @@ void	PmergeMe<Ctn>::FordJohnson(void)
 		std::cout << std::fixed << std::setprecision(3);
 		std::cout << "container:" << container_name_ << "|time_sort:" << time_res << std::endl;
 	}
-	
+
 	std::cout << "END|container:" << container_name_ << std::endl;
 }
 
@@ -99,9 +99,13 @@ bool	PmergeMe<Ctn>::IsSorted_(void) const
 	if (sequence_.size() < 2)
 		return true && copy_.size() == sequence_.size();
 
-	for (ConstIt	it = sequence_.begin(); (it + 1) != sequence_.end(); it++)
+	ConstIt	it = sequence_.begin();
+	ConstIt	next = it;
+	++next;
+
+	for (; next != sequence_.end(); ++it, ++next)
 	{
-		if (*it > *(it + 1))
+		if (*it > *next)
 			return false;
 	}
 	return true && copy_.size() == sequence_.size();
@@ -149,10 +153,10 @@ void	PmergeMe<Ctn>::Fill_(const char **seq, uint64_t seq_size)
 
 	uint64_t	block = (seq_size + nthreads - 1) / nthreads;
 
-	pthread_t			*threads = new pthread_t[nthreads];
-	s_thread_args<Seq>	*args = new s_thread_args<Seq>[nthreads];
-	Seq					*locals = new Seq[nthreads];
-	
+	pthread_t						*threads = new pthread_t[nthreads];
+	s_thread_fillchunk_args<Seq>	*args = new s_thread_fillchunk_args<Seq>[nthreads];
+	Seq								*locals = new Seq[nthreads];
+
 	std::cout << "container:" << container_name_ << "|threads_init:" << nthreads << std::endl;
 
 	unsigned int	t = 0;

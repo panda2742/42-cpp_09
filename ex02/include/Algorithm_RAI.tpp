@@ -201,14 +201,14 @@ typename Algorithm<P>::Seq &	Algorithm<P>::SortImpl_(Seq & sequence, std::random
 			pairs.push_back(std::make_pair(sequence[i + 1], sequence[i]));
 	}
 
-	sequence = Algorithm<P>::Recursion(pairs, is_odd, isolated_element); 
+	sequence = Algorithm<P>::Recursion(pairs, is_odd, isolated_element);
 	return sequence;
 }
 
 template <class P>
 void	*Algorithm<P>::T_FillChunkImpl_(void *void_args, std::random_access_iterator_tag)
 {
-	s_thread_args<typename P::Seq>	*args = reinterpret_cast<s_thread_args<typename P::Seq> *>(void_args);
+	s_thread_fillchunk_args<typename P::Seq>	*args = reinterpret_cast<s_thread_fillchunk_args<typename P::Seq> *>(void_args);
 	args->error = false;
 
 	for (uint64_t	i = args->start; i < args->end; i++)
@@ -233,4 +233,10 @@ void	*Algorithm<P>::T_FillChunkImpl_(void *void_args, std::random_access_iterato
 	}
 
 	return NULL;
+}
+
+template <class P>
+void	*Algorithm<P>::T_PairsImpl_(void *void_args, std::random_access_iterator_tag)
+{
+	(void)void_args;
 }
