@@ -5,6 +5,7 @@
 #include "Utils.hpp" // MAX_VALUE
 #include <vector> // vector
 #include "ExecutionResult.hpp" // vector
+#include "ExecutionResultManager.hpp" // vector
 
 namespace visual
 {
@@ -22,65 +23,64 @@ Component	InterfaceManager::Wrap(const std::string& title, Component component)
 	});
 }
 
-InterfaceManager::InterfaceManager(Visualizer& invoker)
-	: invoker_(invoker) {}
-
-Component	InterfaceManager::InitLayout(ScreenInteractive& screen)
+Component	InterfaceManager::InitLayout(VisualizerOptions& options)
 {
+	auto	screen = ScreenInteractive::Fullscreen();
+
 	std::vector<std::string>	flagsEntries = {
 		"Compile without optimization",
 		"Compile with optimizations flags",
 		"Test both"
 	};
-	auto	flagsRadiobox = Wrap("1. Compilation flags", Radiobox(&flagsEntries, &invoker_.GetOptions().select_compilation_flags));
+	auto	flagsRadiobox = Wrap("1. Compilation flags", Radiobox(&flagsEntries, &options.select_compilation_flags));
 
 	std::vector<std::string>	runModeEntries = {
 		"Run normally",
 		"Run with Valgrind",
 		"Test both"
 	};
-	auto	runModeRadiobox = Wrap("2. Run mode", Radiobox(&runModeEntries, &invoker_.GetOptions().selected_run_mode));
+	auto	runModeRadiobox = Wrap("2. Run mode", Radiobox(&runModeEntries, &options.selected_run_mode));
 
 	auto	input_validator = [&]
 	{
-		&invoker_.GetOptions().amount_of_elements.erase(
+		options.amount_of_elements.erase(
 			remove_if(
-				invoker_.GetOptions().amount_of_elements.begin(),
-				invoker_.GetOptions().amount_of_elements.end(),
+				options.amount_of_elements.begin(),
+				options.amount_of_elements.end(),
 				[](char c)
 				{
 					return !isdigit(c);
 				}
 			),
-			invoker_.GetOptions().amount_of_elements.end()
+			options.amount_of_elements.end()
 		);
 
-		if (!invoker_.GetOptions().amount_of_elements.empty())
+		if (!options.amount_of_elements.empty())
 		{
 			try
 			{
-				invoker_.GetOptions().amount = stoul(invoker_.GetOptions().amount_of_elements);
-				if (invoker_.GetOptions().amount > MAX_VALUE)
+				options.amount = stoul(options.amount_of_elements);
+				if (options.amount > MAX_VALUE)
 				{
-					invoker_.GetOptions().amount = MAX_VALUE;
-					invoker_.GetOptions().amount_of_elements = MAX_VALUE_STR;
+					options.amount = MAX_VALUE;
+					options.amount_of_elements = MAX_VALUE_STR;
 				}
 			}
 			catch(const std::exception& e)
 			{
-				invoker_.GetOptions().amount = 0;
-				invoker_.GetOptions().amount_of_elements = "0";
+				options.amount = 0;
+				options.amount_of_elements = "0";
 			}
 		}
 		else
 		{
-			invoker_.GetOptions().amount = 0;
-			invoker_.GetOptions().amount_of_elements = "0";
+			options.amount = 0;
+			options.amount_of_elements = "0";
 		}
 	};
 	auto	input = Wrap(
 		"3. Number of elements",
-		Input(&invoker_.GetOptions().amount_of_elements, "Size") | CatchEvent([&](Event event)
+		Input(&options.amount_of_elements, "Size") | CatchEvent([&](Event event)
 			{
 				if (event == Event::Return)
 				{
@@ -118,15 +118,19 @@ Component	InterfaceManager::InitLayout(ScreenInteractive& screen)
 			}) | xflex | size(WIDTH, GREATER_THAN, 40) | border,
 		});
 	});
+
+	screen.Loop(layoutComponent);
+
+	return layoutComponent;
 }
 
-Component	InterfaceManager::MetricsLayout(ScreenInteractive& screen)
+Component	InterfaceManager::MetricsLayout(ExecutionResultManager& execution_result_manager)
 {
 	auto	screen = ScreenInteractive::Fullscreen();
 
 	int						container_selected = 0;
 	std::vector<std::string> container_entries;
-	auto					results = invoker_.GetExecutionResult().GetResults();
+	auto					results = execution_result_manager.GetResults();
 	transform(results.begin(), results.end(), back_inserter(container_entries),
 		[](const auto& pair) { return pair.first; }
 	);
@@ -270,6 +274,8 @@ Component	InterfaceManager::MetricsLayout(ScreenInteractive& screen)
 	});
 
 	screen.Loop(main_renderer);
+
+	return main_renderer;
 }
 
 }

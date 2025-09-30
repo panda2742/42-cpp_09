@@ -14,10 +14,10 @@
 namespace utils
 {
 
-void	LoadingSpinner(std::stop_token stoken, const string& message)
+void	LoadingSpinner(std::stop_token stoken, const std::string& message)
 {
-	const vector<string>	frames = {"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"};
-	const vector<string>	colors = {
+	const std::vector<std::string>	frames = {"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"};
+	const std::vector<std::string>	colors = {
 		C_RED,
 		C_ORANGE,
 		C_YELLOW,
@@ -33,16 +33,16 @@ void	LoadingSpinner(std::stop_token stoken, const string& message)
 	size_t	i = 0;
 	while (!stoken.stop_requested())
 	{
-		cout << C_CLEARLN C_ORANGE "[ " << colors[i] << frames[i] << C_ORANGE " ] " << message << C_RESET << flush;
+		std::cout << C_CLEARLN C_ORANGE "[ " << colors[i] << frames[i] << C_ORANGE " ] " << message << C_RESET << std::flush;
 		i = (i + 1) % frames.size();
-		this_thread::sleep_for(milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 }
 
-vector<string>	Split(const string& s, const string& delimiter)
+std::vector<std::string>	Split(const std::string& s, const std::string& delimiter)
 {
-	auto			segments = s | views::split(delimiter);
-	vector<string>	parts;
+	auto			segments = s | std::views::split(delimiter);
+	std::vector<std::string>	parts;
 
 	for (const auto& seg : segments)
 		parts.emplace_back(seg.begin(), seg.end());
@@ -50,26 +50,26 @@ vector<string>	Split(const string& s, const string& delimiter)
 	return parts;
 }
 
-string	GetLineProperty(const string& key, const string& line_fragment)
+std::string	GetLineProperty(const std::string& key, const std::string& line_fragment)
 {
-	vector<string>	values = Split(line_fragment, ":");
+	std::vector<std::string>	values = Split(line_fragment, ":");
 
 	if (values.size() == 2 && values.at(0) == key)
 		return values.at(1);
 
-	throw runtime_error("Line format is corrupted, '" + key + "' key does not exist.");
+	throw std::runtime_error("Line format is corrupted, '" + key + "' key does not exist.");
 }
 
-vector<string>	GetLineKeys(const string& line)
+std::vector<std::string>	GetLineKeys(const std::string& line)
 {
-	vector<string>	values = Split(line, "|");
-	auto			splitted = values | views::transform(
-		[](const string& s)
+	std::vector<std::string>	values = Split(line, "|");
+	auto			splitted = values | std::views::transform(
+		[](const std::string& s)
 		{
 			return Split(s, ":")[0];
 		}
 	);
-	vector<string>	keys(splitted.begin(), splitted.end());
+	std::vector<std::string>	keys(splitted.begin(), splitted.end());
 
 	return keys;
 }

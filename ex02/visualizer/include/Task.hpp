@@ -22,6 +22,7 @@ namespace visual
 	class Task
 	{
 	public:
+		Task(void) = default;
 		Task(TaskID, std::string, unsigned char);
 		~Task(void) = default;
 		Task(const Task&) = default;

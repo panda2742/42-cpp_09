@@ -29,18 +29,31 @@ namespace visual
 		std::array<unsigned long long, 3>&	GetHeapSummary(void);
 		std::array<unsigned long long, 2>&	GetErrorsSummary(void);
 
+		void	SetContainerName(const std::string&);
+		void	SetValgrindEnabled(bool);
+		void	SetFlagsEnabled(bool);
+		void	SetSortedBefore(bool);
+		void	SetSortedAfter(bool);
+		void	SetSequenceSize(unsigned int);
+		void	SetInitThreadsCount(unsigned short int);
+		void	SetSortThreadsCount(unsigned short int);
+		void	SetInitTime(unsigned long long);
+		void	SetSortTime(unsigned long long);
+		void	SetHeapSummary(unsigned char, unsigned long long);
+		void	SetErrorsSummary(unsigned char, unsigned long long);
+
 	private:
-		std::string							container_name;
-		bool								valgrind_enabled;
-		bool								flags_enabled;
-		bool								is_sorted_before;
-		bool								is_sorted_after;
-		unsigned int						sequence_size;
-		unsigned short int					init_threads_count;
-		unsigned short int					sort_threads_count;
-		unsigned long long					init_time;
-		unsigned long long					sort_time;
-		std::array<unsigned long long, 3>	heap_summary;
-		std::array<unsigned long long, 2>	errors_summary;
+		std::string							container_name_;
+		bool								valgrind_enabled_;
+		bool								flags_enabled_;
+		bool								is_sorted_before_;
+		bool								is_sorted_after_;
+		unsigned int						sequence_size_;
+		unsigned short int					init_threads_count_;
+		unsigned short int					sort_threads_count_;
+		unsigned long long					init_time_;
+		unsigned long long					sort_time_;
+		std::array<unsigned long long, 3>	heap_summary_;
+		std::array<unsigned long long, 2>	errors_summary_;
 	};
 }

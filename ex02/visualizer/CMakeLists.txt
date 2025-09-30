@@ -24,9 +24,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -MD -Wshadow -g3 -
 include_directories(include)
 
 set(SOURCES
+	src/ExecutionResult.cpp
+	src/ExecutionResultManager.cpp
+	src/InterfaceManager.cpp
 	src/main.cpp
+	src/Task.cpp
+	src/TaskManager.cpp
 	src/Utils.cpp
 	src/Visualizer.cpp
+	src/VisualizerOptions.cpp
 )
 
 add_executable(Visualizer ${SOURCES})

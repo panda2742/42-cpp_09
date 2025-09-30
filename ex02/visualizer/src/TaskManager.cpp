@@ -8,53 +8,51 @@
 namespace visual
 {
 
-TaskManager::TaskManager(Visualizer& invoker): invoker_(invoker) {}
-
-void	TaskManager::PrepareTasks(void)
+void	TaskManager::PrepareTasks(VisualizerOptions& options)
 {
 	system("clear");
 	// Clean and prepare
-	tasks_[TaskID::TmpDir] = Task(TaskID::TmpDir, "cd ../../ && mkdir -p .visu_tmp", 0);
+	tasks_.emplace(TaskID::TmpDir, Task(TaskID::TmpDir, "cd ../../ && mkdir -p .visu_tmp", 0));
 	tasks_[TaskID::TmpDir].SetTmpFile("");
 	tasks_[TaskID::TmpDir].SetTmpFileErr("");
-	tasks_[TaskID::MakeFclean] = Task(TaskID::MakeFclean, "cd ../../ && make fclean", 1);
+	tasks_.emplace(TaskID::MakeFclean, Task(TaskID::MakeFclean, "cd ../../ && make fclean", 1));
 
 	// Compilation
-	if (invoker_.GetOptions().select_compilation_flags != 1)
-		tasks_[TaskID::Make] = Task(TaskID::Make, "cd ../../ && make", 2);
-	if (invoker_.GetOptions().select_compilation_flags > 0)
-		tasks_[TaskID::MakeBonus] = Task(TaskID::MakeBonus, "cd ../../ && make bonus", 2);
+	if (options.select_compilation_flags != 1)
+		tasks_.emplace(TaskID::Make, Task(TaskID::Make, "cd ../../ && make", 2));
+	if (options.select_compilation_flags > 0)
+		tasks_.emplace(TaskID::MakeBonus, Task(TaskID::MakeBonus, "cd ../../ && make bonus", 2));
 	
 	// Input generation
-	tasks_[TaskID::GenerateInput] = Task(
+	tasks_.emplace(TaskID::GenerateInput, Task(
 		TaskID::GenerateInput,
 		"cd ../../ && shuf -i 1-"
-		+ std::to_string(stoul(invoker_.GetOptions().amount_of_elements) * 10) + " -n "
-		+ invoker_.GetOptions().amount_of_elements + " | tr '\\n' ' '", 3
-	);
+		+ std::to_string(std::stoul(options.amount_of_elements) * 10) + " -n "
+		+ options.amount_of_elements + " | tr '\\n' ' '", 3
+	));
 	const std::string&	input_filename = tasks_[TaskID::GenerateInput].GetTmpFile();
 
 	// Run programs
-	if (invoker_.GetOptions().selected_run_mode != 1)
+	if (options.selected_run_mode != 1)
 	{
 		if (tasks_.find(TaskID::Make) != tasks_.end())
-			tasks_[TaskID::Run] = Task(TaskID::Run,
+			tasks_.emplace(TaskID::Run, Task(TaskID::Run,
 				"cd ../../ && ./PmergeMe file:.visu_tmp/" + input_filename, 4
-			);
+			));
 		if (tasks_.find(TaskID::MakeBonus) != tasks_.end())
-			tasks_[TaskID::RunBonus] = Task(TaskID::RunBonus,
+			tasks_.emplace(TaskID::RunBonus, Task(TaskID::RunBonus,
 				"cd ../../ && ./PmergeMe_with_turbo file:.visu_tmp/" + input_filename, 4
-			);
+			));
 	}
-	if (invoker_.GetOptions().selected_run_mode > 0)
+	if (options.selected_run_mode > 0)
 	{
 		if (tasks_.find(TaskID::Make) != tasks_.end())
-			tasks_[TaskID::ValgrindRun] = Task(TaskID::ValgrindRun,
-				"cd ../../ && valgrind " VG_FLAGS " ./PmergeMe file:.visu_tmp/" + input_filename, 4);
+			tasks_.emplace(TaskID::ValgrindRun, Task(TaskID::ValgrindRun,
+				"cd ../../ && valgrind " VG_FLAGS " ./PmergeMe file:.visu_tmp/" + input_filename, 4));
 		if (tasks_.find(TaskID::MakeBonus) != tasks_.end())
-			tasks_[TaskID::ValgrindRunBonus] = Task(TaskID::ValgrindRunBonus,
+			tasks_.emplace(TaskID::ValgrindRunBonus, Task(TaskID::ValgrindRunBonus,
 				"cd ../../ && valgrind " VG_FLAGS " ./PmergeMe_with_turbo file:.visu_tmp/" + input_filename, 4
-			);
+			));
 	}
 
 	// Sort tasks into priority order into the vector.
@@ -103,5 +101,7 @@ void	TaskManager::RunTasks(void)
 		i++;
 	}
 }
+
+std::vector<Task *>&	TaskManager::GetSortedTasks(void) { return sorted_; }
 
 }

@@ -1,28 +1,30 @@
 #pragma once
 
-#include "ExecutionResult.hpp" // ExecutionResult
+#include "ExecutionResult.hpp"
+#include "Visualizer.hpp"
+#include "Task.hpp"
+#include "TaskManager.hpp"
 #include <map> // map
 #include <string> // string
 #include <vector> // vector
-#include "Visualizer.hpp" // Visualizer
 
 namespace visual
 {
+	class TaskManager;
+
 	class ExecutionResultManager
 	{
 	public:
-		ExecutionResultManager(Visualizer&);
+		ExecutionResultManager(void) = default;
 		~ExecutionResultManager(void) = default;
 		ExecutionResultManager(const ExecutionResultManager&) = default;
 		ExecutionResultManager(ExecutionResultManager&&) = default;
-		ExecutionResultManager&	operator=(const ExecutionResultManager&) = default;
-		ExecutionResultManager&	operator=(ExecutionResultManager&&) = default;
 
 		std::map<std::string, std::vector<ExecutionResult>>&	GetResults(void);
 		void													GenerateResults(TaskManager&);
-	
+		void													AnalyzeTask(Task&);
+
 	private:
 		std::map<std::string, std::vector<ExecutionResult>>	results_;
-		Visualizer&											invoker_;
 	};
 }

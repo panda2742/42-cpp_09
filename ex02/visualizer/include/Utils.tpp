@@ -8,7 +8,7 @@ namespace utils
 template <typename T>
 std::string	FormatNumber(const T& n)
 {
-	std::string	str = to_string(n),
+	std::string	str = std::to_string(n),
 			result;
 
 	size_t	count = 0;

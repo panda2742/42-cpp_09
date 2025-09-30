@@ -30,12 +30,12 @@
 
 namespace utils
 {
-	void						LoadingSpinner(std::stop_token stoken, const std::string& message);
-	std::vector<std::string>	Split(const std::string& s, const std::string& delimiter);
-	std::string					GetLineProperty(const std::string& key, const std::string& line_fragment);
-	std::vector<std::string>	GetLineKeys(const std::string& line);
+	void						LoadingSpinner(std::stop_token, const std::string&);
+	std::vector<std::string>	Split(const std::string&, const std::string&);
+	std::string					GetLineProperty(const std::string&, const std::string&);
+	std::vector<std::string>	GetLineKeys(const std::string&);
 	template <typename T>
-	std::string					FormatNumber(const T& n);
+	std::string					FormatNumber(const T&);
 	void						CleanTraces(void);
 }
 
