@@ -16,6 +16,8 @@ void	Visualizer::Launch(void)
 	visual::InterfaceManager		interface_manager;
 	visual::TaskManager				task_manager;
 
+	try
+	{
 	interface_manager.InitLayout(options_);
 
 	std::cout << "\033[2J\033[1;1H" << std::flush;
@@ -33,4 +35,6 @@ void	Visualizer::Launch(void)
 
 	utils::CleanTraces();
 	interface_manager.MetricsLayout(execution_result_manager);
+	}
+	catch(...) {}
 }

@@ -1,12 +1,24 @@
 #include "Algorithm.hpp"
 
 // ===========================================================
+// |                     STATIC SYMBOLS                      |
+// ===========================================================
+
+template <class Container> static void		_ReserveSpace(Container& c, size_t size) { (void)c; (void)size; }
+template <class T, class Alloc> static void	_ReserveSpace(std::vector<T, Alloc>& c, size_t size) { c.reserve(size); }
+template <class T> static void	_ReserveSpace(std::deque<T>& c, size_t size) { c.resize(size); }
+
+// ===========================================================
 // |                     PRIVATE MEMBERS                     |
 // ===========================================================
 
 template <class P>
 typename Algorithm<P>::It	Algorithm<P>::LowerBoundImpl_(It first, It last, uint64_t value, std::random_access_iterator_tag)
 {
+	if (first == last) return first;
+	if (value <= *first) return first;
+	if (value > *(last - 1)) return last;
+
 	typename std::iterator_traits<It>::difference_type	count = last - first,
 														step;
 	It	it;
@@ -89,8 +101,7 @@ void	Algorithm<P>::GenerateJacobsthalIndicesImpl_(Seq & indices, uint64_t n, std
 template <class P>
 void	Algorithm<P>::JacobsthalInsertImpl_(Seq & res, Seq & to_insert, std::random_access_iterator_tag)
 {
-	if (to_insert.empty())
-		return;
+	if (to_insert.empty()) return;
 
 	Seq	jacobsthal_indices;
 	Algorithm<P>::GenerateJacobsthalIndices(jacobsthal_indices, to_insert.size());
@@ -141,6 +152,8 @@ typename Algorithm<P>::Seq	Algorithm<P>::RecursionImpl_(PairSeq & pairs, bool is
 	bool		new_is_odd = pairs.size() % 2;
 	uint64_t	new_isolated_element = ULONG_MAX;
 
+	_ReserveSpace(res, pairs.size() * 2 + is_odd);
+
 	if (new_is_odd)
 	{
 		new_isolated_element = pairs.back().first;
@@ -148,16 +161,74 @@ typename Algorithm<P>::Seq	Algorithm<P>::RecursionImpl_(PairSeq & pairs, bool is
 		pairs.pop_back();
 	}
 
-	for (uint64_t	i = 0; i < pairs.size(); i += 2)
+	if (pairs.size() < THREAD_THRESHOLD_SORT)
 	{
-		if (pairs[i].first > pairs[i + 1].first)
-			primary_pairs.push_back(std::make_pair(pairs[i].first, pairs[i + 1].first));
-		else
-			primary_pairs.push_back(std::make_pair(pairs[i + 1].first, pairs[i].first));
+		for (uint64_t	i = 0; i < pairs.size(); i += 2)
+		{
+			if (pairs[i].first > pairs[i + 1].first)
+				primary_pairs.push_back(std::make_pair(pairs[i].first, pairs[i + 1].first));
+			else
+				primary_pairs.push_back(std::make_pair(pairs[i + 1].first, pairs[i].first));
 
-		seq_to_insert.push_back(pairs[i].second);
-		seq_to_insert.push_back(pairs[i + 1].second);
+			seq_to_insert.push_back(pairs[i].second);
+			seq_to_insert.push_back(pairs[i + 1].second);
+		}
+
+		res = Recursion(primary_pairs, new_is_odd, new_isolated_element);
+
+		Algorithm<P>::JacobsthalInsert(res, seq_to_insert);
+
+		if (is_odd && isolated_element != ULONG_MAX)
+		{
+			It	pos = res.begin();
+
+			while (pos != res.end() && *pos < isolated_element)
+				pos++;
+
+			res.insert(pos, isolated_element);
+		}
+
+		return res;
 	}
+
+	_ReserveSpace(primary_pairs, pairs.size() / 2);
+	_ReserveSpace(seq_to_insert, pairs.size());
+
+	unsigned short int	max_threads = get_hardware_concurrency();
+	if (max_threads == 0) max_threads = 2;
+
+	uint64_t	potential = pairs.size() / MIN_BLOCK_SORT;
+	if (potential == 0) potential = 1;
+
+	unsigned short int	nthreads = static_cast<unsigned short int>(potential);
+	if (nthreads > max_threads) nthreads = max_threads;
+	else if (nthreads > pairs.size()) nthreads = static_cast<unsigned short int>(pairs.size());
+
+	uint64_t	block = (pairs.size() + nthreads - 1) / nthreads;
+
+	pthread_t							threads[MAX_THREADS];
+	s_thread_pairs_args<Seq, PairSeq>	args[MAX_THREADS];
+
+	uint64_t	start = 0;
+	for (unsigned short int	i = 0; i < nthreads; ++i)
+	{
+		uint64_t	end = (i == nthreads - 1) ? pairs.size() : start + block;
+		end = end & ~1;
+
+		args[i].pairs = &pairs;
+		args[i].primary_pairs = &primary_pairs;
+		args[i].seq_to_insert = &seq_to_insert;
+		args[i].start = start;
+		args[i].end = end;
+
+		pthread_create(&threads[i], NULL, &Algorithm<P>::T_Pairs, &args[i]);
+		start = end;
+	}
+
+	SortThreads += nthreads;
+
+	for (unsigned short int	i = 0; i < nthreads; ++i)
+		pthread_join(threads[i], NULL);
 
 	res = Recursion(primary_pairs, new_is_odd, new_isolated_element);
 
@@ -192,6 +263,7 @@ typename Algorithm<P>::Seq &	Algorithm<P>::SortImpl_(Seq & sequence, std::random
 	}
 
 	PairSeq	pairs;
+	_ReserveSpace(pairs, sequence.size() / 2 + 1);
 
 	for (uint64_t	i = 0; i < sequence.size(); i += 2)
 	{
@@ -238,5 +310,31 @@ void	*Algorithm<P>::T_FillChunkImpl_(void *void_args, std::random_access_iterato
 template <class P>
 void	*Algorithm<P>::T_PairsImpl_(void *void_args, std::random_access_iterator_tag)
 {
-	(void)void_args;
+	s_thread_pairs_args<typename P::Seq, typename P::PairSeq>	*args = reinterpret_cast<s_thread_pairs_args<typename P::Seq, typename P::PairSeq> *>(void_args);
+
+	for (unsigned int	i = args->start; i < args->end; i += 2)
+	{
+		unsigned int	pair_index = i / 2;
+		unsigned int	insert_index = i;
+
+		if ((*args->pairs)[i].first > (*args->pairs)[i + 1].first)
+		{
+			(*args->primary_pairs)[pair_index] = std::make_pair(
+				(*args->pairs)[i].first,
+				(*args->pairs)[i + 1].first
+			);
+		}
+		else
+		{
+			(*args->primary_pairs)[pair_index] = std::make_pair(
+				(*args->pairs)[i + 1].first,
+				(*args->pairs)[i].first
+			);
+		}
+
+		(*args->seq_to_insert)[insert_index] = (*args->pairs)[i].second;
+		(*args->seq_to_insert)[insert_index + 1] = (*args->pairs)[i + 1].second;
+	}
+
+	return NULL;
 }

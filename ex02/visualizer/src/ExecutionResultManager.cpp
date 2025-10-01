@@ -31,9 +31,8 @@ void	ExecutionResultManager::GenerateResults(TaskManager& task_manager)
 		}
 		catch(const std::exception& e)
 		{
-			utils::CleanTraces();
 			std::cerr << C_CLEARLN C_RED << "Task analyze error: " << e.what() << C_RESET << std::endl;
-			return;
+			throw;
 		}
 	}
 

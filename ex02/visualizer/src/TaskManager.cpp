@@ -93,9 +93,8 @@ void	TaskManager::RunTasks(void)
 		}
 		catch(const std::exception& e)
 		{
-			utils::CleanTraces();
 			std::cerr << C_CLEARLN C_RED << ptr->GetTask() << ": " << e.what() << C_RESET << std::endl;
-			return;
+			throw;
 		}
 
 		i++;

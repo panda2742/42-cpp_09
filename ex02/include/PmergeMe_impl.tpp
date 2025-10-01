@@ -58,6 +58,8 @@ void	PmergeMe<Ctn>::FordJohnson(void)
 
 	Display();
 
+	std::cout << "container:" << container_name_ << "|threads_sort:" << Algorithm<PmergeMe<Ctn> >::SortThreads << std::endl;
+
 	if (measure_time_)
 	{
 		double	time_res = GetTimeDiff_(tv_sort_start_, tv_sort_end_);
@@ -120,7 +122,7 @@ void	PmergeMe<Ctn>::Fill_(const char **seq, uint64_t seq_size)
 		return;
 	}
 
-	if (seq_size < THREAD_THRESHOLD)
+	if (seq_size < THREAD_THRESHOLD_INIT)
 	{
 		std::cout << "container:" << container_name_ << "|threads_init:0" << std::endl;
 		std::set<uint64_t>	seen;
@@ -141,15 +143,15 @@ void	PmergeMe<Ctn>::Fill_(const char **seq, uint64_t seq_size)
 		return;
 	}
 
-	unsigned int	max_threads = get_hardware_concurrency();
+	unsigned short int	max_threads = get_hardware_concurrency();
 	if (max_threads == 0) max_threads = 2;
 
-	uint64_t	potential = seq_size / MIN_BLOCK;
+	uint64_t	potential = seq_size / MIN_BLOCK_INIT;
 	if (potential == 0) potential = 1;
 
-	unsigned int		nthreads = static_cast<unsigned int>(potential);
+	unsigned short int	nthreads = static_cast<unsigned short int>(potential);
 	if (nthreads > max_threads) nthreads = max_threads;
-	else if (nthreads > seq_size) nthreads = static_cast<unsigned int>(seq_size);
+	else if (nthreads > seq_size) nthreads = static_cast<unsigned short int>(seq_size);
 
 	uint64_t	block = (seq_size + nthreads - 1) / nthreads;
 

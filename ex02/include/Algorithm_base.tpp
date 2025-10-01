@@ -8,6 +8,9 @@
 // ===========================================================
 
 template <class P>
+unsigned short int	Algorithm<P>::SortThreads = 0;
+
+template <class P>
 Algorithm<P>::Algorithm(void) {}
 
 template <class P>
@@ -62,3 +65,8 @@ void	*Algorithm<P>::T_FillChunk(void *void_args)
 	return T_FillChunkImpl_(void_args, typename std::iterator_traits<It>::iterator_category());
 }
 
+template <class P>
+void	*Algorithm<P>::T_Pairs(void *void_args)
+{
+	return T_PairsImpl_(void_args, typename std::iterator_traits<It>::iterator_category());
+}
