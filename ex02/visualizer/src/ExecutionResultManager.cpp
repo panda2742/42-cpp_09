@@ -91,7 +91,7 @@ void	ExecutionResultManager::AnalyzeTask(Task& task)
 			else if (key == "seq_state")
 			{
 				std::string	value = utils::GetLineProperty("seq_state", parts.at(1));
-				if (res.value().GetInitTime() == 0)
+				if (res.value().GetSortTime() == 0)
 					res.value().SetSortedBefore(value == "sorted");
 				else
 					res.value().SetSortedAfter(value == "sorted");

@@ -57,7 +57,7 @@ std::string	GetLineProperty(const std::string& key, const std::string& line_frag
 	if (values.size() == 2 && values.at(0) == key)
 		return values.at(1);
 
-	throw std::runtime_error("Line format is corrupted, '" + key + "' key does not exist.");
+	throw std::runtime_error("Line format is corrupted, '" + key + "' key does not exist on " + line_fragment + ".");
 }
 
 std::vector<std::string>	GetLineKeys(const std::string& line)

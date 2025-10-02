@@ -15,14 +15,14 @@ override NAME		:=	PmergeMe
 override INCLUDE_DIR	:=	include/
 override TEMPLATE_DIR	:=	include/
 override SOURCE_DIR		:=	src/
-INCLUDES				:=	Algorithm PmergeMe types utils
-TEMPLATES				:=	Algorithm_base Algorithm_BI Algorithm_RAI PmergeMe_base PmergeMe_impl
+INCLUDES				:=	$(addprefix logic/, algo threads) PmergeMe utils
+TEMPLATES				:=	$(addprefix logic/, algo threads) PmergeMe_base PmergeMe_impl
 SOURCES					:=	main PmergeMe utils
 override INCLUDE		:=	$(addprefix $(INCLUDE_DIR), $(addsuffix .hpp, $(INCLUDES)))
 override TEMPLATE		:=	$(addprefix $(TEMPLATE_DIR), $(addsuffix .tpp, $(TEMPLATES)))
 override SOURCE			:=	$(addprefix $(SOURCE_DIR), $(addsuffix .cpp, $(SOURCES)))
 
-CPPFLAGS	:=	-Wall -Wextra -Werror -MD -Wshadow -g3 --std=c++98 #-fsanitize=address
+CPPFLAGS	:=	-Wall -Wextra -Werror -MD -Wshadow -g3 -std=c++98 # -fsanitize=address
 TURBO_FLAGS	:=	-O3 -ffast-math -finline-functions -m64 -pthread
 TURBO		?=	0
 

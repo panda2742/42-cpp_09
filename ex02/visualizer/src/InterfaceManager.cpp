@@ -135,7 +135,7 @@ void	InterfaceManager::MetricsLayout(ExecutionResultManager& execution_result_ma
 	auto	menu_component = Menu(&container_entries, &container_selected);
 	auto	menu_renderer = Renderer(menu_component, [&]
 	{
-		return window(text(" Containers ") | color(Color::BlueViolet) | bold, menu_component->Render()  | color(Color::Orange1));
+		return window(text(" Containers ") | color(Color::BlueViolet) | bold, menu_component->Render() | color(Color::Orange1) | vscroll_indicator | frame);
 	});
 	auto	metrics_renderer = Renderer([&]
 	{
@@ -280,7 +280,7 @@ void	InterfaceManager::MetricsLayout(ExecutionResultManager& execution_result_ma
 			return window(
 				text(" Metrics for " + container_name + " (" + std::to_string(res.size()) + " tests) ") |
 				color(Color::BlueViolet) | bold,
-				vbox(std::move(rows))
+				vbox(std::move(rows)) | vscroll_indicator | frame | yflex
 			);
 		}
 		return window(
@@ -298,7 +298,7 @@ void	InterfaceManager::MetricsLayout(ExecutionResultManager& execution_result_ma
 	{
 		return hbox({
 			menu_renderer->Render() | flex_shrink,
-			metrics_renderer->Render() | flex
+			metrics_renderer->Render() | flex | yflex
 		});
 	});
 
