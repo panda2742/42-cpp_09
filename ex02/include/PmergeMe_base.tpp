@@ -9,10 +9,12 @@
 // ===========================================================
 
 template <template <class T, class Alloc> class Ctn>
-PmergeMe<Ctn>::PmergeMe(const char **seq, uint32_t seq_size, const std::string & container_name)
-		: container_name_(container_name)
+PmergeMe<Ctn>::PmergeMe(
+	const char **seq, uint32_t seq_size, const std::string & container_name
+) : container_name_(container_name)
 {
-	std::cout << "START|container:" << container_name_ << "|size:" << seq_size <<std::endl;
+	std::cout << "START|container:" << container_name_ << "|size:"
+		<< seq_size <<std::endl;
 	fill_args_t	args = { .seq = seq, .seq_size = seq_size };
 	chrono_("time_init", &PmergeMe<Ctn>::fill_, &args);
 	display_();

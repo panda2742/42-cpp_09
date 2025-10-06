@@ -12,10 +12,14 @@ template <template <class T, class Alloc> class Ctn = std::deque>
 class PmergeMe
 {
 public:
-	typedef std::allocator<uint32_t>		allocator_t;
-	typedef Ctn<uint32_t, allocator_t>		seq_t;
-	typedef typename seq_t::iterator		it_t;
-	typedef typename seq_t::const_iterator	const_it_t;
+	typedef std::allocator<uint32_t>								allocator_t;
+	typedef Ctn<uint32_t, allocator_t>								seq_t;
+	typedef std::allocator<bool>									bool_allocator_t;
+	typedef Ctn<bool, bool_allocator_t>								bool_seq_t;
+	typedef std::allocator<std::pair<uint32_t, uint32_t> >			pair_allocator_t;
+	typedef Ctn<std::pair<uint32_t, uint32_t>, pair_allocator_t>	pair_seq_t;
+	typedef typename seq_t::iterator								it_t;
+	typedef typename seq_t::const_iterator							const_it_t;
 
 	PmergeMe(const char **seq, uint32_t seq_size, const std::string& container_name);
 	~PmergeMe(void);
@@ -31,7 +35,7 @@ private:
 
 	seq_t			sequence_;
 	seq_t			copy_;
-	std::string	container_name_;
+	std::string		container_name_;
 
 	template <class Class>
 	void	chrono_(const std::string& message, void (Class::*f)(void *), void *f_args);

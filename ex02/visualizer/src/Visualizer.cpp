@@ -18,23 +18,23 @@ void	Visualizer::Launch(void)
 
 	try
 	{
-	interface_manager.InitLayout(options_);
+		interface_manager.InitLayout(options_);
 
-	std::cout << "\033[2J\033[1;1H" << std::flush;
+		std::cout << "\033[2J\033[1;1H" << std::flush;
 
-	const std::string	wait_message = "Running...";
-	std::jthread		spinner([wait_message](std::stop_token stoken)
-		{
-			utils::LoadingSpinner(stoken, wait_message);
-		});
+		const std::string	wait_message = "Running...";
+		std::jthread		spinner([wait_message](std::stop_token stoken)
+			{
+				utils::LoadingSpinner(stoken, wait_message);
+			});
 
-	task_manager.PrepareTasks(options_);
-	task_manager.RunTasks();
-	spinner.request_stop();
-	execution_result_manager.GenerateResults(task_manager);
+		task_manager.PrepareTasks(options_);
+		task_manager.RunTasks();
+		spinner.request_stop();
+		execution_result_manager.GenerateResults(task_manager);
 
-	utils::CleanTraces();
-	interface_manager.MetricsLayout(execution_result_manager);
+		utils::CleanTraces();
+		interface_manager.MetricsLayout(execution_result_manager);
 	}
 	catch(...) {}
 }

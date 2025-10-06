@@ -16,16 +16,20 @@
 template <template <class T, class Alloc> class Ctn>
 void	PmergeMe<Ctn>::ford_johnson_(void *)
 {
-	std::cout << "container:" << container_name_ << "|threads_sort:" << threads::nb_sort_threads << std::endl;
+	std::cout << "container:" << container_name_ << "|threads_sort:"
+		<< threads::nb_sort_threads << std::endl;
 
 	if (sequence_.size() == 1)
 		return;
+
+	sequence_ = algo::sort<seq_t, pair_seq_t, bool_seq_t>(sequence_);
 }
 
 template <template <class T, class Alloc> class Ctn>
 void	PmergeMe<Ctn>::display_(void) const
 {
-	std::cout << "container:" << container_name_ << "|seq_state:" << (is_sorted_() ? "sorted" : "not sorted");
+	std::cout << "container:" << container_name_ << "|seq_state:"
+		<< (is_sorted_() ? "sorted" : "not sorted");
 	std::cout << "|seq:";
 	for (const_it_t	it = sequence_.begin(); it != sequence_.end(); it++)
 	{
@@ -38,7 +42,9 @@ void	PmergeMe<Ctn>::display_(void) const
 
 template <template <class T, class Alloc> class Ctn>
 template <class Class>
-void	PmergeMe<Ctn>::chrono_(const std::string& message, void (Class::*f)(void *), void *f_args)
+void	PmergeMe<Ctn>::chrono_(
+	const std::string& message, void (Class::*f)(void *), void *f_args
+)
 {
 	struct timeval	start = { .tv_sec = 0, .tv_usec = 0 },
 					end = { .tv_sec = 0, .tv_usec = 0 };
@@ -48,8 +54,10 @@ void	PmergeMe<Ctn>::chrono_(const std::string& message, void (Class::*f)(void *)
 	(obj->*f)(f_args);
 	gettimeofday(&end, NULL);
 
-	uint32_t	diff = (end.tv_sec - start.tv_sec) * 1000000L + (end.tv_usec - start.tv_usec);
-	std::cout << "container:" << container_name_ << "|" << message << ":" << diff << std::endl;
+	uint32_t	diff = (end.tv_sec - start.tv_sec) * 1000000L
+		+ (end.tv_usec - start.tv_usec);
+	std::cout << "container:" << container_name_ << "|" << message << ":"
+		<< diff << std::endl;
 }
 
 template <template <class T, class Alloc> class Ctn>
@@ -86,7 +94,8 @@ void	PmergeMe<Ctn>::fill_(void *args)
 		for (uint32_t	i = 0; i < seq_size; i++)
 		{
 			char		*endptr;
-			if (strlen(seq[i]) == 0 || seq[i][0] == '-') throw std::runtime_error("Invalid sequence elemnt format.");
+			if (strlen(seq[i]) == 0 || seq[i][0] == '-')
+				throw std::runtime_error("Invalid sequence elemnt format.");
 			errno = 0;
 			uint32_t	value = std::strtoul(seq[i], &endptr, 10);
 			if (
@@ -108,15 +117,18 @@ void	PmergeMe<Ctn>::fill_(void *args)
 
 	unsigned short int	nthreads = static_cast<unsigned short int>(potential);
 	if (nthreads > max_threads) nthreads = max_threads;
-	else if (nthreads > seq_size) nthreads = static_cast<unsigned short int>(seq_size);
+	else if (nthreads > seq_size)
+		nthreads = static_cast<unsigned short int>(seq_size);
 
 	uint32_t	block = (seq_size + nthreads - 1) / nthreads;
 
 	pthread_t						*threads = new pthread_t[nthreads];
-	threads::fillchunk_args<seq_t>	*t_args = new threads::fillchunk_args<seq_t>[nthreads];
+	threads::fillchunk_args<seq_t>	*t_args =
+		new threads::fillchunk_args<seq_t>[nthreads];
 	seq_t							*locals = new seq_t[nthreads];
 
-	std::cout << "container:" << container_name_ << "|threads_init:" << nthreads << std::endl;
+	std::cout << "container:" << container_name_ << "|threads_init:" << nthreads
+		<< std::endl;
 
 	unsigned int	t = 0;
 	for (; t < nthreads; t++)
@@ -131,7 +143,9 @@ void	PmergeMe<Ctn>::fill_(void *args)
 		t_args[t].end		= end;
 		t_args[t].out		= &locals[t];
 		t_args[t].error	= false;
-		pthread_create(&threads[t], NULL, threads::fill_chunk_job<seq_t>, &t_args[t]);
+		pthread_create(
+			&threads[t], NULL, threads::fill_chunk_job<seq_t>, &t_args[t]
+		);
 	}
 
 	bool	error = false;
@@ -155,7 +169,9 @@ void	PmergeMe<Ctn>::fill_(void *args)
 			if (!seen.insert(*it).second)
 			{
 				delete[] threads; delete[] t_args; delete[] locals;
-				throw std::runtime_error("There is a duplicate in the sequence.");
+				throw std::runtime_error(
+					"There is a duplicate in the sequence."
+				);
 			}
 			sequence_.push_back(*it);
 		}
