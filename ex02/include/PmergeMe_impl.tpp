@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <cstring>
 #include <set>
-#include <threads.h>
+#include <pthread.h>
 #include "logic/threads.hpp"
 #include "logic/algo.hpp"
 
