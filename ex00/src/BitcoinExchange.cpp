@@ -54,7 +54,7 @@ bool	BitcoinExchange::Date_t::operator>=(const Date_t & other) const
 }
 
 BitcoinExchange::
-	ExchangeException::ExchangeException(const std::string & errMessage) 
+	ExchangeException::ExchangeException(const std::string & errMessage)
 	throw(): _errMessage(C_RED + errMessage + C_RESET)
 	{}
 
@@ -127,7 +127,7 @@ const throw(ExchangeException)
 		.day = uint8_t(atoi(dateLiteral.substr(8, 2).c_str())),
 	};
 
-	if (date.year < 2009 || date.year > 2025)
+	if (date.year < 2009)
 		throw ExchangeException(
 			"Year value must be greater than or equal 2009."
 		);
@@ -300,7 +300,7 @@ void	BitcoinExchange::ParseDatabase(void) throw(ExchangeException)
 
 	if (!_db.is_open())
 		throw ExchangeException("The database file could not be opened.");
-	
+
 	std::string	line;
 	int64_t		i = -1;
 	while (std::getline(_db, line) && (++i + 1))
@@ -334,7 +334,7 @@ void	BitcoinExchange::ReadInput(void) throw(ExchangeException)
 
 	if (!_input.is_open())
 		throw ExchangeException("The input file could not be opened.");
-	
+
 	std::string	line;
 	int64_t		i = -1;
 	while (std::getline(_input, line) && (++i + 1))
