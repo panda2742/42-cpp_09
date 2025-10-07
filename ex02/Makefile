@@ -66,7 +66,7 @@ re: fclean
 	$(MAKE)
 
 .PHONY: run
-run: bonus
+run: all
 	@clear
 	./$(NAME) 3 5 9 7 4
 	./$(NAME) "-1" "2"
@@ -74,7 +74,7 @@ run: bonus
 	./$(NAME) `shuf -i 1-100000 -n 3000 | tr "\n" " "`
 
 .PHONY: vg
-vg: bonus
+vg: all
 	@clear
 	$(VG) $(VGFLAGS) ./$(NAME) 3 5 9 7 4
 	$(VG) $(VGFLAGS) ./$(NAME) "-1" "2"
