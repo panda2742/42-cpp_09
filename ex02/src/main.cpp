@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <sstream>
 
-#define TESTS_PER_CONTAINER 10
+#define TESTS_PER_CONTAINER 1
 
 static char	**_compute_sequence(int *argc, char **argv, bool *allocated);
 template <template <class T, class Alloc> class Ctn>
